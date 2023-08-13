@@ -1,0 +1,19 @@
+# MacOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info
+.ipynb_checkpoints
+src/pysparkplug/_version.py
+
+# VS Code
+/.vscode/
+/*.code-workspace
+
+# Cache from Docker container
+/.cache
+
+# Docs
+/docs/build

@@ -1,0 +1,75 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Test
+        run: test/test.sh
+
+      - name: Create draft Github release
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: test/test.sh -s draft_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish package to testpypi
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: test/test.sh -s publish -- testpypi
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TESTPYPI_TOKEN }}
+
+  os_compatibility:
+    runs-on: ${{ matrix.os }}
+    name: "OS: ${{ matrix.os }} Python: ${{ matrix.python-version }}"
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python-version }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip wheel setuptools
+        pip install coverage[toml] nox==2023.04.22
+
+    - name: Run unit tests
+      run: nox --session unit_tests-{{ matrix.python-version }}
+
+    - name: Combine coverage reports
+      run: |
+        coverage combine
+        coverage xml --fail-under 0
+
+    - name: Upload to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        env_vars: OS,PYTHON
+        fail_ci_if_error: true
+        verbose: true

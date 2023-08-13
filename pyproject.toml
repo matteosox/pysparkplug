@@ -1,0 +1,105 @@
+[project]
+name = "pysparkplug"
+description = "An open-source, Python implementation of Sparkplug B, an MQTT topic and payload definition standard"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "Apache License, Version 2.0"}
+keywords = ["mqtt", "sparkplug", "manufacturing", "automation"]
+authors = [{ name = "Matt Fay", email = "matt.e.fay@gmail.com" }]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Manufacturing",
+  "License :: OSI Approved :: Apache Software License",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Typing :: Typed",
+]
+dependencies = [
+  "paho-mqtt",
+  "protobuf",
+  "typing-extensions; python_version < '3.11'",
+]
+dynamic = ["version"]
+
+[project.urls]
+Documentation = "https://pysparkplug.mattefay.com"
+Changelog = "https://pysparkplug.mattefay.com/en/stable/changelog.html"
+Source = "https://github.com/matteosox/pysparkplug"
+"Bug Tracker" = "https://github.com/matteosox/pysparkplug/issues"
+
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+raw-options = { local_scheme = "no-local-version" }
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/pysparkplug/_version.py"
+
+[tool.black]
+verbose = true
+color = true
+target_version = ["py38", "py39", "py310", "py311"]
+line_length = 88
+extend-exclude = """
+(
+  .*_pb2.py$
+)
+"""
+
+[tool.isort]
+verbose = true
+profile = "black"
+skip_gitignore = true
+line_length = 88
+extend_skip = [".cache"]
+extend_skip_glob = ["*_pb2.py"]
+
+[tool.mypy]
+cache_dir = ".cache/mypy"
+color_output = true
+strict = true
+
+[[tool.mypy.overrides]]
+module = "pysparkplug._protobuf.sparkplug_b_pb2"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "noxfile"
+disallow_untyped_decorators = false
+
+[tool.pytest.ini_options]
+cache_dir = ".cache/pytest"
+addopts = "-ra --verbose --color=yes"
+testpaths = ["test/unit_tests"]
+
+[tool.coverage.paths]
+source = [
+  ".cache/nox/unit_tests-3-8/lib/python3.8/site-packages/",
+  ".cache/nox/unit_tests-3-9/lib/python3.9/site-packages/",
+  ".cache/nox/unit_tests-3-10/lib/python3.10/site-packages/",
+  ".cache/nox/unit_tests-3-11/lib/python3.11/site-packages/",
+]
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source = ["pysparkplug"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 46
+
+[tool.check-wheel-contents]
+toplevel = "pysparkplug"
+package = "src/pysparkplug"

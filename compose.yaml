@@ -1,0 +1,33 @@
+services:
+  cicd:
+    build: .
+    volumes:
+      - ./:/root/pysparkplug
+    command: ["exit", "0"]
+    environment:
+      - GH_TOKEN
+      - TWINE_USERNAME
+      - TWINE_PASSWORD
+  emqx:
+    image: emqx/emqx:5.0.9
+    ports:
+      - "18083:18083"  # Dashboard
+    environment:
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: admin
+  notebook:
+    build:
+      context: .
+      dockerfile: notebook.Dockerfile
+    command:
+      - "start.sh"
+      - "jupyter"
+      - "lab"
+      - "--ServerApp.token='bokchoy'"
+      - "--ServerApp.allow_origin='*'"
+      - "--ServerApp.disable_check_xsrf=True"
+      - "--ServerApp.ip='0.0.0.0'"
+      - "--notebook-dir=/home/jovyan/pysparkplug/notebooks"
+    ports:
+      - "8888:8888"  # Notebook environment
+    volumes:
+      - ./:/home/jovyan/pysparkplug
