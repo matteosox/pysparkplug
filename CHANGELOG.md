@@ -3,7 +3,7 @@
 All notable changes for `pysparkplug` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Changelog](http://keepachangelog.com/).
 
-## Unreleased
+## 0.1.0 (2023-08-13)
 
 ### Added
 - `Client` low-level MQTT client
@@ -34,13 +34,3 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 - `Transport` MQTT transort enum
 - `WSConfig` Websockets configuration class
 - `get_current_timestamp` returns current time in a Sparkplug B compliant format
-
-### Changed
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
