@@ -93,10 +93,11 @@ source = [
 branch = true
 parallel = true
 source = ["pysparkplug"]
+omit = ["*_pb2.py"]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 46
+fail_under = 48
 
 [tool.check-wheel-contents]
 toplevel = "pysparkplug"
