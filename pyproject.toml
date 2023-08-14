@@ -22,12 +22,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Typing :: Typed",
 ]
-dependencies = [
-  "paho-mqtt",
-  "protobuf",
-  "typing-extensions; python_version < '3.11'",
-]
-dynamic = ["version"]
+dynamic = ["version", "dependencies"]
 
 [project.urls]
 Documentation = "https://pysparkplug.mattefay.com"
@@ -36,7 +31,7 @@ Source = "https://github.com/matteosox/pysparkplug"
 "Bug Tracker" = "https://github.com/matteosox/pysparkplug/issues"
 
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
+requires = ["hatchling", "hatch-vcs", "hatch-requirements-txt"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
@@ -45,6 +40,9 @@ raw-options = { local_scheme = "no-local-version" }
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/pysparkplug/_version.py"
+
+[tool.hatch.metadata.hooks.requirements_txt]
+files = ["requirements/requirements.txt"]
 
 [tool.black]
 verbose = true

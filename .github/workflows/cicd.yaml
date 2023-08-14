@@ -19,17 +19,17 @@ jobs:
           fetch-depth: 0
 
       - name: Test
-        run: test/test.sh
+        run: ./nox.sh
 
       - name: Create draft Github release
         if: ${{ github.ref == 'refs/heads/main' }}
-        run: test/test.sh -s draft_release
+        run: ./nox.sh -s draft_release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish package to testpypi
         if: ${{ github.ref == 'refs/heads/main' }}
-        run: test/test.sh -s publish -- testpypi
+        run: ./nox.sh -s publish -- testpypi
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TESTPYPI_TOKEN }}
@@ -60,16 +60,14 @@ jobs:
         pip install coverage[toml] nox==2023.04.22
 
     - name: Run unit tests
-      run: nox --session unit_tests-{{ matrix.python-version }}
+      run: nox --session unit_tests-${{ matrix.python-version }}
 
     - name: Combine coverage reports
       run: |
         coverage combine
         coverage xml --fail-under 0
 
-    - name: Upload to Codecov
-      uses: codecov/codecov-action@v2
-      with:
-        env_vars: OS,PYTHON
-        fail_ci_if_error: true
-        verbose: true
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

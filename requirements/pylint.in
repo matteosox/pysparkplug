@@ -1,0 +1,4 @@
+nox
+packaging
+pylint
+--requirement requirements.txt

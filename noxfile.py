@@ -1,5 +1,6 @@
 """Test/developer workflow automation"""
 
+import pathlib
 from typing import cast
 
 import nox
@@ -28,30 +29,30 @@ def fix(session: nox.Session) -> None:
     session.notify("isort", ["fix"])
 
 
-@nox.session
+@nox.session()
 def black(session: nox.Session) -> None:
     """Black Python formatting tool"""
-    session.install("black")
+    session.install("--requirement", "requirements/black.txt")
     if session.posargs and session.posargs[0] == "fix":
         session.run("black", ".")
     else:
         session.run("black", "--diff", "--check", ".")
 
 
-@nox.session
+@nox.session()
 def isort(session: nox.Session) -> None:
     """ISort Python import formatting tool"""
-    session.install("isort")
+    session.install("--requirement", "requirements/isort.txt")
     if session.posargs and session.posargs[0] == "fix":
         session.run("isort", ".")
     else:
         session.run("isort", "--check-only", ".")
 
 
-@nox.session
+@nox.session()
 def pylint(session: nox.Session) -> None:
     """Pylint Python linting tool"""
-    session.install("pylint", ".", "nox", "packaging")
+    session.install("--requirement", "requirements/pylint.txt", ".")
     session.run(
         "pylint",
         "src",
@@ -61,21 +62,12 @@ def pylint(session: nox.Session) -> None:
     )
 
 
-@nox.session
+@nox.session()
 def mypy(session: nox.Session) -> None:
     """Mypy Python static type checker"""
-    session.install(
-        "mypy",
-        ".",
-        "nox",
-        "packaging",
-        "types-protobuf",
-        "types-paho-mqtt",
-    )
+    session.install("--requirement", "requirements/mypy.txt", ".")
     session.run(
         "mypy",
-        "--install-types",
-        "--non-interactive",
         "src",
         "noxfile.py",
         "test/unit_tests",
@@ -86,12 +78,7 @@ def mypy(session: nox.Session) -> None:
 @nox.session(python=["3.8", "3.9", "3.10", "3.11"])
 def unit_tests(session: nox.Session) -> None:
     """Unit test suite run with coverage tracking"""
-    session.install(
-        ".",
-        "coverage[toml]",
-        "pytest",
-        "packaging",
-    )
+    session.install("--requirement", "requirements/unit_tests.txt", ".")
     if session.posargs and session.posargs[0] == "fast":
         session.run("python", "-m", "pytest")
     else:
@@ -101,7 +88,7 @@ def unit_tests(session: nox.Session) -> None:
 @nox.session()
 def coverage(session: nox.Session) -> None:
     """Report on coverage tracking"""
-    session.install("coverage[toml]")
+    session.install("--requirement", "requirements/coverage.txt")
     try:
         session.run("coverage", "combine")
         session.run("coverage", "report")
@@ -112,16 +99,7 @@ def coverage(session: nox.Session) -> None:
 @nox.session()
 def docs(session: nox.Session) -> None:
     """Generate and test documentation"""
-    session.install(
-        ".",
-        "furo",
-        "myst-parser",
-        "packaging",
-        "sphinx",
-        "sphinx-copybutton",
-        "sphinx-notfound-page",
-        "sphinxext-opengraph",
-    )
+    session.install("--requirement", "requirements/docs.txt", ".")
     session.run(
         "sphinx-build",
         "-T",
@@ -148,10 +126,10 @@ def docs(session: nox.Session) -> None:
     )
 
 
-@nox.session
+@nox.session()
 def packaging(session: nox.Session) -> None:
     """Build and test packaging"""
-    session.install("check-wheel-contents", "twine", "build")
+    session.install("--requirement", "requirements/packaging.txt", ".")
     try:
         session.run("python", "-m", "build")
         session.run("check-wheel-contents", "dist")
@@ -160,10 +138,10 @@ def packaging(session: nox.Session) -> None:
         session.run("rm", "-rf", "dist", external=True)
 
 
-@nox.session
+@nox.session()
 def draft_release(session: nox.Session) -> None:
     """Create a draft Github Release"""
-    session.install(".")
+    session.install("--requirement", "requirements/draft_release.txt", ".")
     version_str = _version(session)
     version_obj = Version(version_str)
     if not version_obj.is_devrelease:
@@ -184,20 +162,12 @@ def draft_release(session: nox.Session) -> None:
     session.run(*cmd, external=True)
 
 
-@nox.session
+@nox.session()
 def publish(session: nox.Session) -> None:
     """Publish package to PyPI and upload build artifacts to Github Release"""
-    session.install(".", "twine", "build")
+    session.install("--requirement", "requirements/publish.txt", ".")
     version_str = _version(session)
     version_obj = Version(version_str)
-    if (
-        version_obj.is_devrelease
-        or version_obj.is_postrelease
-        or version_obj.local is not None
-    ):
-        raise ValueError(
-            f"Package version {version_str} should not be a post or dev release"
-        )
     repository = session.posargs[0]
     if repository == "pypi":
         if (
@@ -257,3 +227,30 @@ def _get_notes() -> str:
             changes_lines.append(line)
 
     return "".join(changes_lines)
+
+
+@nox.session()
+def update_requirements(session: nox.Session) -> None:
+    """Pin requirements files for nox environments.
+
+    NOTE: "'pip-compile' should be run from the same virtual environment as your
+    project so conditional dependencies that require a specific Python
+    version, or other environment markers, resolve relative to your project's
+    environment." This does not do that, and may break in the future as a
+    result, especially the various unit test environments, with their
+    different Python versions.
+    """
+    session.install("pip-tools")
+    for path in pathlib.Path(pathlib.Path.cwd(), "requirements").iterdir():
+        if path.suffix == ".in":
+            session.run(
+                "pip-compile",
+                "--allow-unsafe",
+                "--resolver=backtracking",
+                "--upgrade",
+                "--verbose",
+                "--output-file",
+                f"requirements/{path.stem}.txt",
+                str(path),
+                env={"CUSTOM_COMPILE_COMMAND": "./nox.sh -s update_requirements"},
+            )
