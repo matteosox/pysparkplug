@@ -35,7 +35,7 @@ def _get_blob() -> str:
     version = Version(version_str)
     if version.is_devrelease or version.is_postrelease:
         return _get_git_sha()
-    return version_str
+    return f"v{version_str}"
 
 
 def _get_git_sha() -> str:
