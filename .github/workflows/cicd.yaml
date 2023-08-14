@@ -33,6 +33,7 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         run: ./nox.sh -s publish -- testpypi
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TESTPYPI_TOKEN }}
 
