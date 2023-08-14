@@ -1,0 +1,8 @@
+furo
+myst-parser
+packaging
+sphinx
+sphinx-copybutton
+sphinx-notfound-page
+sphinxext-opengraph
+--requirement requirements.txt

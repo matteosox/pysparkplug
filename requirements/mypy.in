@@ -1,0 +1,7 @@
+mypy
+nox
+packaging
+types-colorama
+types-paho-mqtt
+types-protobuf
+--requirement requirements.txt

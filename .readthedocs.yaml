@@ -14,14 +14,7 @@ python:
   install:
     - method: pip
       path: .
-    - requirements:
-      - furo
-      - myst-parser
-      - packaging
-      - sphinx
-      - sphinx-copybutton
-      - sphinx-notfound-page
-      - sphinxext-opengraph
+    - requirements: requirements/docs.txt
 
 # Build documentation in the docs/source directory with Sphinx
 sphinx:
