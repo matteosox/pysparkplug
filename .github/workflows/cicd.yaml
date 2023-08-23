@@ -65,10 +65,8 @@ jobs:
     - name: Run unit tests
       run: nox --session unit_tests-${{ matrix.python-version }}
 
-    - name: Combine coverage reports
-      run: |
-        coverage combine
-        coverage xml --fail-under 0
+    - name: Generate coverage report
+      run: coverage xml --fail-under 0
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
