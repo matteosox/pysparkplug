@@ -3,6 +3,7 @@
 import enum
 
 from pysparkplug import _payload as payload
+from pysparkplug._strenum import StrEnum
 
 __all__ = [
     "ErrorCode",
@@ -12,10 +13,6 @@ __all__ = [
     "MessageType",
     "Transport",
 ]
-
-
-class _StrEnum(str, enum.Enum):
-    pass
 
 
 class ErrorCode(enum.IntEnum):
@@ -105,14 +102,14 @@ class MQTTProtocol(enum.IntEnum):
     MQTT_V5 = 5
 
 
-class Transport(_StrEnum):
+class Transport(StrEnum):
     """MQTT transport enum"""
 
     WS = "websockets"
     TCP = "tcp"
 
 
-class MessageType(_StrEnum):
+class MessageType(StrEnum):
     """Sparkplug B message type enum"""
 
     STATE = "STATE"

@@ -83,6 +83,7 @@ def unit_tests(session: nox.Session) -> None:
         session.run("python", "-m", "pytest")
     else:
         session.run("coverage", "run", "-m", "pytest")
+        session.notify("coverage")
 
 
 @nox.session()

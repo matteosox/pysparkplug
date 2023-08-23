@@ -6,6 +6,12 @@ from typing import Any, Callable, Dict, Optional, Tuple, Union
 from paho.mqtt import client as paho_mqtt
 
 from pysparkplug._config import ClientOptions, TLSConfig, WSConfig
+from pysparkplug._constants import (
+    DEFAULT_CLIENT_BIND_ADDRESS,
+    DEFAULT_CLIENT_BLOCKING,
+    DEFAULT_CLIENT_KEEPALIVE,
+    DEFAULT_CLIENT_PORT,
+)
 from pysparkplug._enums import ErrorCode, MQTTProtocol, QoS, Transport
 from pysparkplug._error import check_connack_code, check_error_code
 from pysparkplug._message import Message
@@ -102,7 +108,7 @@ class Client:
             self._client.will_clear()
         else:
             self._client.will_set(
-                topic=message.topic.to_str(),
+                topic=str(message.topic),
                 payload=message.payload.encode(),
                 qos=message.qos,
                 retain=message.retain,
@@ -112,10 +118,10 @@ class Client:
         self,
         host: str,
         *,
-        port: int = 1883,
-        keepalive: int = 60,
-        bind_address: str = "",
-        blocking: bool = False,
+        port: int = DEFAULT_CLIENT_PORT,
+        keepalive: int = DEFAULT_CLIENT_KEEPALIVE,
+        bind_address: str = DEFAULT_CLIENT_BIND_ADDRESS,
+        blocking: bool = DEFAULT_CLIENT_BLOCKING,
         callback: Optional[Callable[[Self], None]] = None,
     ) -> None:
         """Connect client to the broker
@@ -185,7 +191,7 @@ class Client:
                 whether or not to include the dtypes of the message
         """
         result = self._client.publish(
-            topic=message.topic.to_str(),
+            topic=str(message.topic),
             payload=message.payload.encode(include_dtypes=include_dtypes),
             qos=message.qos,
             retain=message.retain,
@@ -217,7 +223,7 @@ class Client:
             message = self._handle_message(mqtt_message)
             callback(self, message)
 
-        self._client.message_callback_add(topic.to_str(), cb)
+        self._client.message_callback_add(str(topic), cb)
         self._subscriptions[topic] = qos
         self._subscribe(topic, qos)
 
@@ -232,7 +238,7 @@ class Client:
         return message
 
     def _subscribe(self, topic: Topic, qos: QoS) -> None:
-        result, _ = self._client.subscribe(topic.to_str(), qos)
+        result, _ = self._client.subscribe(str(topic), qos)
         check_error_code(result, ignore_codes={ErrorCode.NO_CONN})
 
     def unsubscribe(self, topic: Topic) -> None:
@@ -242,7 +248,7 @@ class Client:
             topic:
                 the topic to be subscribed to
         """
-        result, _ = self._client.unsubscribe(topic.to_str())
+        result, _ = self._client.unsubscribe(str(topic))
         check_error_code(result)
         del self._subscriptions[topic]
-        self._client.message_callback_remove(topic.to_str())
+        self._client.message_callback_remove(str(topic))
