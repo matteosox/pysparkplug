@@ -21,6 +21,7 @@ Summary
     ErrorCode
     MQTTError
     MQTTProtocol
+    MULTI_LEVEL_WILDCARD
     Message
     MessageType
     Metric
@@ -30,6 +31,7 @@ Summary
     NData
     NDeath
     QoS
+    SINGLE_LEVEL_WILDCARD
     State
     TLSConfig
     Topic
@@ -137,3 +139,7 @@ Odds & Ends
 .. autoclass:: MetricValue
 
 .. autoexception:: MQTTError
+
+.. autodata:: SINGLE_LEVEL_WILDCARD
+
+.. autodata:: MULTI_LEVEL_WILDCARD
