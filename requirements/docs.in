@@ -1,7 +1,7 @@
 furo
 myst-parser
 packaging
-sphinx
+sphinx==7.1.2  # Sphinx 7.2 has a bug with generating HTML
 sphinx-copybutton
 sphinx-notfound-page
 sphinxext-opengraph

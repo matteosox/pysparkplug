@@ -97,7 +97,7 @@ omit = ["*_pb2.py"]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 48
+fail_under = 55
 
 [tool.check-wheel-contents]
 toplevel = "pysparkplug"

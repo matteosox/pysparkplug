@@ -7,6 +7,12 @@ import logging
 from typing import Callable, Dict, Iterable, Optional
 
 from pysparkplug._client import Client
+from pysparkplug._constants import (
+    DEFAULT_CLIENT_BIND_ADDRESS,
+    DEFAULT_CLIENT_BLOCKING,
+    DEFAULT_CLIENT_KEEPALIVE,
+    DEFAULT_CLIENT_PORT,
+)
 from pysparkplug._datatype import DataType
 from pysparkplug._enums import MessageType, QoS
 from pysparkplug._message import Message
@@ -125,10 +131,10 @@ class EdgeNode:
         self,
         host: str,
         *,
-        port: int = 1883,
-        keepalive: int = 60,
-        bind_address: str = "",
-        blocking: bool = False,
+        port: int = DEFAULT_CLIENT_PORT,
+        keepalive: int = DEFAULT_CLIENT_KEEPALIVE,
+        bind_address: str = DEFAULT_CLIENT_BIND_ADDRESS,
+        blocking: bool = DEFAULT_CLIENT_BLOCKING,
     ) -> None:
         """Connect edge node to the broker
 

@@ -1,0 +1,15 @@
+"""Module of constants used by the package"""
+
+from typing import Literal
+
+from pysparkplug._types import TypeAlias
+
+SINGLE_LEVEL_WILDCARD_TYPE: TypeAlias = Literal["+"]
+SINGLE_LEVEL_WILDCARD: SINGLE_LEVEL_WILDCARD_TYPE = "+"
+MULTI_LEVEL_WILDCARD_TYPE: TypeAlias = Literal["#"]
+MULTI_LEVEL_WILDCARD: MULTI_LEVEL_WILDCARD_TYPE = "#"
+
+DEFAULT_CLIENT_PORT = 1883
+DEFAULT_CLIENT_KEEPALIVE = 60
+DEFAULT_CLIENT_BIND_ADDRESS = ""
+DEFAULT_CLIENT_BLOCKING = False

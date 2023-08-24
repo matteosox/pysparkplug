@@ -7,4 +7,9 @@ cd "$REPO_DIR"
 
 echo "Opening notebook environment"
 
-docker compose run --rm -it --service-ports notebook
+cleanup() {
+    docker compose down
+}
+trap cleanup EXIT
+
+docker compose up notebook emqx

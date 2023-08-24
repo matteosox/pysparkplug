@@ -3,19 +3,21 @@
 All notable changes for `pysparkplug` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Changelog](http://keepachangelog.com/).
 
-## Unreleased
+## 0.2.0 (2023-08-23)
 
 ### Added
+- `SINGLE_LEVEL_WILDCARD` and `MULTI_LEVEL_WILDCARD` wildcards for subscribing to multiple MQTT topics, conveniently typed to pass type checking
 
 ### Changed
-
-### Deprecated
+- Refactored how dependencies are entered into the package's metadata, using `hatch-requirements-txt` referencing `requirements/requirements.txt`
 
 ### Removed
+- Removed `Topic.to_string()`, since users should just use `str(topic)`.
 
 ### Fixed
-
-### Security
+- Explicitly making `MetricValue` available from the top-level package, resolving any type annotation issues.
+- Fixed bug with implementation of `StrEnum` that resulted in enums not converting correctly to string. This resulted in topics not rendering to string correctly, since the `message_type` attribute was `MessageType`, an instance of `StrEnum`.
+- Fixed bug with topic component validation, which was using the wrong wildcard constants `"#*"` instead of the correct `"#+"`.
 
 ## 0.1.0 (2023-08-13)
 

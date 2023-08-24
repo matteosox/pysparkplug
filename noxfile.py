@@ -83,6 +83,7 @@ def unit_tests(session: nox.Session) -> None:
         session.run("python", "-m", "pytest")
     else:
         session.run("coverage", "run", "-m", "pytest")
+        session.notify("coverage", ["no-cleanup"])
 
 
 @nox.session()
@@ -93,7 +94,8 @@ def coverage(session: nox.Session) -> None:
         session.run("coverage", "combine")
         session.run("coverage", "report")
     finally:
-        session.run("rm", "-f", ".coverage", external=True)
+        if not (session.posargs and session.posargs[0] == "no-cleanup"):
+            session.run("rm", "-f", ".coverage", external=True)
 
 
 @nox.session()
