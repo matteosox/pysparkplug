@@ -15,16 +15,22 @@ from pysparkplug._topic import *
 from pysparkplug._version import __version__ as __version__
 
 SINGLE_LEVEL_WILDCARD = _constants.SINGLE_LEVEL_WILDCARD
-"""Constant for single-level MQTT topic wildcard,
-with type annotation for compatibility with pysparkplug interfaces
+"""Constant for single-level MQTT topic wildcard
+
+Uses type annotation for compatibility with `Topic` objects.
+
+.. versionadded:: 0.2.0
 """
 
 MULTI_LEVEL_WILDCARD = _constants.MULTI_LEVEL_WILDCARD
-"""Constant for multi-level MQTT topic wildcard,
-with type annotation for compatibility with pysparkplug interfaces
+"""Constant for multi-level MQTT topic wildcard
+
+Uses type annotation for compatibility with `Topic` objects.
+
+.. versionadded:: 0.2.0
 """
 
 MetricValue = _types.MetricValue
-"""Type annotation for the types a Sparkplug B metric's `value` attribute can take"""
+"""Type annotation for the types a `Metric`'s `value` attribute can take"""
 
 del _constants, _types
