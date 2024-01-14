@@ -26,7 +26,7 @@ paho-mqtt==1.6.1
     # via -r /root/pysparkplug/requirements/requirements.txt
 platformdirs==4.1.0
     # via virtualenv
-protobuf==4.25.1
+protobuf==4.25.2
     # via -r /root/pysparkplug/requirements/requirements.txt
 types-colorama==0.4.15.20240106
     # via -r /root/pysparkplug/requirements/mypy.in

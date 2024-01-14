@@ -178,4 +178,3 @@ When naming a branch, please use the syntax `username/branch-name-here`. If you 
 - Refactor all of `_payload.py`.
 - Refactor `_datatype.py` for better type annotation.
 - Add validation for correct combinations of group_id, edge_node_id, etc. to `Topic.__init__`.
-- Unpin `sphinx` in `requirements/docs.in` once `sphinx-notfound-page` supports the breaking changes introduced in version 7.2.

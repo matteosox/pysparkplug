@@ -16,7 +16,7 @@ paho-mqtt==1.6.1
     # via -r /root/pysparkplug/requirements/requirements.txt
 pluggy==1.3.0
     # via pytest
-protobuf==4.25.1
+protobuf==4.25.2
     # via -r /root/pysparkplug/requirements/requirements.txt
 pytest==7.4.4
     # via -r /root/pysparkplug/requirements/unit_tests.in
