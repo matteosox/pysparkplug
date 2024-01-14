@@ -3,6 +3,14 @@
 All notable changes for `pysparkplug` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Changelog](http://keepachangelog.com/).
 
+## 0.3.0 (2024-01-13)
+
+### Added
+- Pysparkplug now supports Python 3.12
+
+### Deprecated
+- Pysparkplug no longer supports Python 3.7, which has reached its end of life.
+
 ## 0.2.0 (2023-08-23)
 
 ### Added
