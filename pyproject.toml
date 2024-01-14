@@ -18,6 +18,7 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: Implementation :: CPython",
   "Typing :: Typed",
@@ -47,7 +48,7 @@ files = ["requirements/requirements.txt"]
 [tool.black]
 verbose = true
 color = true
-target_version = ["py38", "py39", "py310", "py311"]
+target_version = ["py38", "py39", "py310", "py311", "py312"]
 line_length = 88
 extend-exclude = """
 (
@@ -87,6 +88,7 @@ source = [
   ".cache/nox/unit_tests-3-9/lib/python3.9/site-packages/",
   ".cache/nox/unit_tests-3-10/lib/python3.10/site-packages/",
   ".cache/nox/unit_tests-3-11/lib/python3.11/site-packages/",
+  ".cache/nox/unit_tests-3-12/lib/python3.12/site-packages/",
 ]
 
 [tool.coverage.run]

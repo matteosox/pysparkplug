@@ -21,8 +21,11 @@ RUN --mount=type=cache,target=/var/cache/apt \
     # Install packages, without unnecessary recommended packages
     apt-get --yes install --no-install-recommends \
     python3.8 python3.8-distutils \
-    python3.9 python3.9-distutils python3.10 python3.10-venv \
-    python3.11 git tini curl && \
+    python3.9 python3.9-distutils \
+    python3.10 \
+    python3.11 python3.11-venv \
+    python3.12 \
+    git tini curl && \
     # Install Github CLI
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
     dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg && \
@@ -34,7 +37,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 
 # Create and activate virtual environment
 ENV VIRTUAL_ENV="/root/.venv"
-RUN python3.10 -m venv "$VIRTUAL_ENV"
+RUN python3.11 -m venv "$VIRTUAL_ENV"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Setup root home directory
