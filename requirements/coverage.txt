@@ -4,5 +4,5 @@
 #
 #    ./nox.sh -s update_requirements
 #
-coverage[toml]==7.4.0
+coverage[toml]==7.4.1
     # via -r /root/pysparkplug/requirements/coverage.in

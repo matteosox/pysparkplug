@@ -1,3 +1,3 @@
-paho-mqtt
+paho-mqtt < 2
 protobuf
 typing-extensions; python_version < "3.11"

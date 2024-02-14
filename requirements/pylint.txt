@@ -4,13 +4,13 @@
 #
 #    ./nox.sh -s update_requirements
 #
-argcomplete==3.2.1
+argcomplete==3.2.2
     # via nox
-astroid==3.0.2
+astroid==3.0.3
     # via pylint
-colorlog==6.8.0
+colorlog==6.8.2
     # via nox
-dill==0.3.7
+dill==0.3.8
     # via pylint
 distlib==0.3.8
     # via virtualenv
@@ -28,7 +28,7 @@ packaging==23.2
     #   nox
 paho-mqtt==1.6.1
     # via -r /root/pysparkplug/requirements/requirements.txt
-platformdirs==4.1.0
+platformdirs==4.2.0
     # via
     #   pylint
     #   virtualenv
