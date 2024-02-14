@@ -3,6 +3,11 @@
 All notable changes for `pysparkplug` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Changelog](http://keepachangelog.com/).
 
+## 0.3.1. (2024-02-13)
+
+### Changed
+- Pysparkplug is not compatible with the new 2.0 releasee of Paho, the underlying Python MQTT client.
+
 ## 0.3.0 (2024-01-13)
 
 ### Added

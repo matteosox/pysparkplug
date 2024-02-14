@@ -4,6 +4,7 @@ Configuration file for the Sphinx documentation builder.
 For a full list of confiuration options, see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
+
 # pylint: disable=invalid-name
 
 import datetime

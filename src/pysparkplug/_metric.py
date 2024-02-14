@@ -84,9 +84,11 @@ class Metric:
             timestamp=metric.timestamp if metric.HasField("timestamp") else None,
             name=metric.name if metric.HasField("name") else None,
             datatype=datatype,
-            value=datatype.decode(getattr(metric, value_field))
-            if value_field is not None
-            else None,
+            value=(
+                datatype.decode(getattr(metric, value_field))
+                if value_field is not None
+                else None
+            ),
             alias=metric.alias if metric.HasField("alias") else None,
             is_historical=metric.is_historical,
             is_transient=metric.is_transient,

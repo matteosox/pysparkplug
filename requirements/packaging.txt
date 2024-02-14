@@ -10,7 +10,7 @@ attrs==23.2.0
     # via check-wheel-contents
 build==1.0.3
     # via -r /root/pysparkplug/requirements/packaging.in
-certifi==2023.11.17
+certifi==2024.2.2
     # via requests
 cffi==1.16.0
     # via cryptography
@@ -20,7 +20,7 @@ check-wheel-contents==0.6.0
     # via -r /root/pysparkplug/requirements/packaging.in
 click==8.1.7
     # via check-wheel-contents
-cryptography==41.0.7
+cryptography==42.0.2
     # via secretstorage
 docutils==0.20.1
     # via readme-renderer
@@ -30,7 +30,7 @@ importlib-metadata==7.0.1
     # via
     #   keyring
     #   twine
-jaraco-classes==3.3.0
+jaraco-classes==3.3.1
     # via keyring
 jeepney==0.8.0
     # via
@@ -54,9 +54,9 @@ pkginfo==1.9.6
     # via twine
 pycparser==2.21
     # via cffi
-pydantic==2.5.3
+pydantic==2.6.1
     # via check-wheel-contents
-pydantic-core==2.14.6
+pydantic-core==2.16.2
     # via pydantic
 pygments==2.17.2
     # via
@@ -78,13 +78,13 @@ rich==13.7.0
     # via twine
 secretstorage==3.3.3
     # via keyring
-twine==4.0.2
+twine==5.0.0
     # via -r /root/pysparkplug/requirements/packaging.in
 typing-extensions==4.9.0
     # via
     #   pydantic
     #   pydantic-core
-urllib3==2.1.0
+urllib3==2.2.0
     # via
     #   requests
     #   twine

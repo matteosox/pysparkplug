@@ -59,9 +59,11 @@ class Client:
             client_id=client_id,
             clean_session=True,
             protocol=protocol,
-            transport=Transport.WS
-            if isinstance(transport_config, WSConfig)
-            else Transport.TCP,
+            transport=(
+                Transport.WS
+                if isinstance(transport_config, WSConfig)
+                else Transport.TCP
+            ),
             reconnect_on_failure=client_options.reconnect_on_failure,
         )
         self._client.enable_logger(logger)
