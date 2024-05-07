@@ -4,19 +4,19 @@
 #
 #    ./nox.sh -s update_requirements
 #
-coverage[toml]==7.4.1
+coverage[toml]==7.5.1
     # via -r /root/pysparkplug/requirements/unit_tests.in
 iniconfig==2.0.0
     # via pytest
-packaging==23.2
+packaging==24.0
     # via
     #   -r /root/pysparkplug/requirements/unit_tests.in
     #   pytest
 paho-mqtt==1.6.1
     # via -r /root/pysparkplug/requirements/requirements.txt
-pluggy==1.4.0
+pluggy==1.5.0
     # via pytest
-protobuf==4.25.2
+protobuf==5.26.1
     # via -r /root/pysparkplug/requirements/requirements.txt
-pytest==8.0.0
+pytest==8.2.0
     # via -r /root/pysparkplug/requirements/unit_tests.in

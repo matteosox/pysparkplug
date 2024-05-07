@@ -4,15 +4,15 @@
 #
 #    ./nox.sh -s update_requirements
 #
-black==24.2.0
+black==24.4.2
     # via -r /root/pysparkplug/requirements/black.in
 click==8.1.7
     # via black
 mypy-extensions==1.0.0
     # via black
-packaging==23.2
+packaging==24.0
     # via black
 pathspec==0.12.1
     # via black
-platformdirs==4.2.0
+platformdirs==4.2.1
     # via black
