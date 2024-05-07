@@ -4,37 +4,37 @@
 #
 #    ./nox.sh -s update_requirements
 #
-argcomplete==3.2.2
+argcomplete==3.3.0
     # via nox
 colorlog==6.8.2
     # via nox
 distlib==0.3.8
     # via virtualenv
-filelock==3.13.1
+filelock==3.14.0
     # via virtualenv
-mypy==1.8.0
+mypy==1.10.0
     # via -r /root/pysparkplug/requirements/mypy.in
 mypy-extensions==1.0.0
     # via mypy
-nox==2023.4.22
+nox==2024.4.15
     # via -r /root/pysparkplug/requirements/mypy.in
-packaging==23.2
+packaging==24.0
     # via
     #   -r /root/pysparkplug/requirements/mypy.in
     #   nox
 paho-mqtt==1.6.1
     # via -r /root/pysparkplug/requirements/requirements.txt
-platformdirs==4.2.0
+platformdirs==4.2.1
     # via virtualenv
-protobuf==4.25.2
+protobuf==5.26.1
     # via -r /root/pysparkplug/requirements/requirements.txt
-types-colorama==0.4.15.20240205
+types-colorama==0.4.15.20240311
     # via -r /root/pysparkplug/requirements/mypy.in
-types-paho-mqtt==1.6.0.20240106
+types-paho-mqtt==1.6.0.20240321
     # via -r /root/pysparkplug/requirements/mypy.in
-types-protobuf==4.24.0.20240129
+types-protobuf==5.26.0.20240422
     # via -r /root/pysparkplug/requirements/mypy.in
-typing-extensions==4.9.0
+typing-extensions==4.11.0
     # via mypy
-virtualenv==20.25.0
+virtualenv==20.26.1
     # via nox

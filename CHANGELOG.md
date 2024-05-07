@@ -3,7 +3,12 @@
 All notable changes for `pysparkplug` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Changelog](http://keepachangelog.com/).
 
-## 0.3.1. (2024-02-13)
+## 0.3.2 (2024-05-06)
+
+### Fixed
+- Fixed topic for DDATA payloads resulting from the `EdgeNode.update_device` method.
+
+## 0.3.1 (2024-02-13)
 
 ### Changed
 - Pysparkplug is not compatible with the new 2.0 releasee of Paho, the underlying Python MQTT client.
