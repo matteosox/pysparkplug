@@ -410,6 +410,7 @@ class EdgeNode:
             message_type=MessageType.DDATA,
             group_id=self.group_id,
             edge_node_id=self.edge_node_id,
+            device_id=device_id,
         )
         d_data = DData(get_current_timestamp(), seq=self._seq, metrics=metrics)
         self._client.publish(
