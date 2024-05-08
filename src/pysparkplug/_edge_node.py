@@ -77,8 +77,6 @@ class EdgeNode:
         self._devices = {}
         self._client = client if client is not None else Client()
 
-        self._setup_will()
-
         # Subscribe to NCMD
         n_cmd_topic = Topic(
             message_type=MessageType.NCMD,
@@ -151,6 +149,9 @@ class EdgeNode:
                 whether or not to connect in a blocking way, or connect with a separate thread
         """
 
+        # Setup will for next connection
+        self._setup_will()
+
         def callback(client: Client) -> None:
             self._connected = True
             # Reset seq cycler
@@ -199,9 +200,6 @@ class EdgeNode:
                     include_dtypes=True,
                 )
 
-            # Setup will for next connection
-            self._setup_will()
-
         self._client.connect(
             host,
             port=port,
@@ -215,6 +213,20 @@ class EdgeNode:
         """Disconnect from the broker cleanly, i.e. results in no
         will message being sent by the broker.
         """
+        if self._connected:
+            ndeath = Topic(
+                message_type=MessageType.NDEATH,
+                group_id=self.group_id,
+                edge_node_id=self.edge_node_id,
+            )
+            ndeath_payload = NDeath(
+                timestamp=get_current_timestamp(), bd_seq_metric=self._bd_seq_metric
+            )
+            ndeath_message = Message(
+                topic=ndeath, payload=ndeath_payload, qos=QoS.AT_MOST_ONCE, retain=False
+            )
+            self._client.publish(ndeath_message)
+
         self._client.disconnect()
         self._connected = False
 
