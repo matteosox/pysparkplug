@@ -2,97 +2,81 @@
 
 ## Getting started
 
-We use Docker as a clean, reproducible development environment within which to build, test, generate docs, and so on. As long as you have a modern version of Docker, you should be able to run all developer workflows. That's it! Of course, running things natively isn't a supported/maintained thing.
+We use
+- [`uv`](https://docs.astral.sh/uv/) as a Python project and package manager
+- [`just`](https://just.systems/) as a command runner
+- [`git`](https://git-scm.com/) as a distributed version control system
+
+That should be all you need to install!
 
 ## Tests
 
-_TL;DR: Run `./nox.sh` to run the full suite of tests._
+_TL;DR: Run `just` to run the full suite of tests._
 
-### Black Code Formatting
+Note: any of the following commands run with the pinned Python version in `.python-version`, but can be run with a custom version, e.g. `just python=3.13 test`.
 
-_TL;DR: Run `./nox.sh -s black` to test your code's formatting._
+### Code Formatting
 
-We use [Black](https://black.readthedocs.io/en/stable/index.html) for code formatting. To format your code, run `./nox.sh -s fix` to get all your spaces in a row. Black configuration can be found in the `pyproject.toml` file at the root of the repo.
+_TL;DR: Run `just format` to format Python code in this repo._
 
-### isort Import Ordering
+We use [ruff](https://docs.astral.sh/ruff/) to auto-format the Python code in this repo so you don't have to.
 
-_TL;DR: Run `./nox.sh -s isort` to test your code's imports._
+### Code Linting
 
-For import ordering, we use [isort](https://pycqa.github.io/isort/). To get imports ordered correctly, run `./nox.sh -s fix`. isort configuration can be found in the `pyproject.toml` file at the root of the repo.
+_TL;DR: Run `just lint` to lint Python code in this repo._
 
-### Pylint Code Linting
+We use [ruff](https://docs.astral.sh/ruff/) to lint the Python code in this repo.
 
-_TL;DR: Run `./nox.sh -s pylint` to lint your code._
+### Type Checking
 
-We use [Pyint](https://pylint.pycqa.org/en/latest/) for Python linting (h/t Itamar Turner-Trauring from his site [pythonspeed](https://pythonspeed.com/articles/pylint/) for inspiration). To lint your code, run `./nox.sh -s pylint`. In addition to showing any linting errors, it will also print out a report. Pylint configuration can be found in the `pylintrc` file at the root of the repo.
+_TL;DR: Run `just typecheck` to check the types of the Python code in this repo._
 
-Pylint is setup to lint the `src`, `test/unit_tests` and `docs` directories, along with `noxfile.py`. To add more modules or packages for linting, edit the `pylint` test found in `noxfile.py`.
-
-### Mypy Static Type Checking
-
-_TL;DR: Run `./nox.sh -s mypy` to type check your code._
-
-We use [Mypy](https://mypy.readthedocs.io/en/stable/) for static type checking. To type check your code, run `./nox.sh -s mypy`. Mypy configuration can be found in the `pyproject.toml` file at the root of the repo.
-
-Mypy is setup to run on the `src` and`test/unit_tests`, along with `noxfile.py` and `docs/linkcode.py`. To add more modules or packages for type checking, edit the `mypy` test found in `noxfile.py`.
+We use [pyright](https://microsoft.github.io/pyright/#/) to check the types of the Python code in this repo.
 
 ### Unit Tests
 
-_TL;DR: Run `./nox.sh -s unit_tests-3.10 -- fast` to unit test your code quickly._
+_TL;DR: Run `just unit-test` to run Python unit tests._
 
-While we use [`unittest`](https://docs.python.org/3/library/unittest.html) to write unit tests, we use [`pytest`](https://docs.pytest.org/) for running them. To unit test your code, run `./nox.sh -s unit_tests-3.10 -- fast`. This will run unit tests in Python 3.10 only, without any coverage reporting overhead. To run the tests across all supported versions of Python, run `./nox.sh -s unit_tests`, which will also generate coverage reports which can be aggregated using `./nox.sh -s coverage`.
+We use [pytest](https://docs.pytest.org/en/stable/) to run unit tests, but mostly write them with Python's built-in unittesting module, i.e. [unittest](https://docs.python.org/3/library/unittest.html). You might want to run a subset of unit tests, which you can do! Here's some examples:
+- Specific test: `just unit-test test/unit_tests/test_topic.py::TestTopic::test_complete_wildcard`
+- Specific test class: `just unit-test test/unit_tests/test_topic.py::TestTopic`
+- Specific test file: `just unit-test test/unit_tests/test_topic.py`
 
-`pytest` is setup to discover tests in the `test/unit_tests` directory. All test files must match the pattern `test*.py`. `pytest` configuration can be found in the `pyproject.toml` file at the root of the repo. To add more directories for unit test discovery, edit the `testpaths` configuration option.
+All args are simply passed to `pytest`, so go to town!
 
-### Test Coverage
+### Coverage
 
-_TL;DR: Run `./nox.sh -s coverage` after running the unit tests with coverage to test the coverage of the unit test suite._
+_TL;DR: Run `just coverage` to run coverage analysis of the Python unit test suite across all supported versions of Python._
 
-We use [Coverage.py](https://coverage.readthedocs.io/en/coverage-5.5/) to test the coverage of the unit test suite. This will print any coverage gaps from the full test suite. Coverage.py configuration can be found in the `pyproject.toml` file at the root of the repo.
+We use [coverage](https://coverage.readthedocs.io/en) to test the code coverage of our Python unit test suite. This command runs the unit test suite with each version of Python supported, combining before reporting the results.
+
+Note: this does not get run by `just test` and is not part of CI, only to help developers track coverage on the OS of their local development environment.
 
 ### Documentation Tests
 
-_TL;DR: Run `./nox.sh -s docs` to build and test the documentation._
+_TL;DR: Run `just docs` to build & test the documentation._
 
-See [below](#documentation) for more info on the documentation build process. In addition to building the documentation, the `test/docs.sh` shell script uses Sphinx's [`doctest`](https://www.sphinx-doc.org/en/master/usage/extensions/doctest.html) builder to ensure the documented output of usage examples is accurate. Note that the `README.md` file's ` ```python` code sections are transformed into `{doctest}` directives by `docs/conf.py` during the documentation build process. This allows the `README.md` to render code with syntax highlighting on Github & [PyPI](https://pypi.org) while still ensuring accuracy using `doctest`.
+See [below](#documentation) for more info on the documentation build process. In addition to building the documentation, this uses Sphinx's [`doctest`](https://www.sphinx-doc.org/en/master/usage/extensions/doctest.html) builder to ensure the documented output of usage examples is accurate. Note that the `README.md` file's ` ```python` code sections are transformed into `{doctest}` directives by `docs/source/conf.py` during the documentation build process. This allows the `README.md` to render code with syntax highlighting on Github & PyPI while still ensuring accuracy using `doctest`.
 
 ### Packaging Tests
 
-_TL;DR: Run `./nox.sh -s packaging` to build and test the package._
+_TL;DR: Run `just packaging` to test the package build._
 
-We use [`build`](https://pypa-build.readthedocs.io/en/latest/) to build source distributions and wheels. We then use [`check-wheel-contents`](https://github.com/jwodder/check-wheel-contents) to test for common errors and mistakes found when building Python wheels. Finally, we use [`twine check`](https://twine.readthedocs.io/en/latest/#twine-check) to check whether or not `pysparkplug`'s long description will render correctly on [PyPI](https://pypi.org). To test the package build, run `./nox.sh -s packaging`. While there is no configuration for `build` or `twine`, the configuration for `check-wheel-contents` can be found in the `pyproject.toml` file at the root of the repo.
-
-## Requirements
-
-### Package Dependencies
-
-_TL;DR: `pysparkplug`'s dependencies are defined in `requirements/requirements.txt`_
-
-We use the [hatch-requirements-txt](https://github.com/repo-helper/hatch-requirements-txt) Hatch extension to define `pysparkplug`'s dependenices dynamically in a separate file, specifically `requirements/requirements.txt`.
-
-### Nox Session Dependencies
-
-_TL;DR: Run `./nox.sh -s update_requirements` to update the requirements of each nox session._
-
-We use [nox](https://nox.thea.codes/en/stable/) to define developer workflows in Python. Each nox session has its own Python virtual environment and set of pinned requirements associated with it. We want these statically defined so developer workflows are reproducible. To do this, we generate a `requirements/{session_name}.txt` file for each session by running `./nox.sh --session update_requirements`, which uses `pip-compile`.
-
-To control which packages are installed, manually edit `requirements/{session_name}.in`. This gives us both a flexible way to describe dependencies while still achieving reproducible builds. Inspired by [this](https://hynek.me/articles/python-app-deps-2018/) and [this](https://pythonspeed.com/articles/pipenv-docker/).
-
-### Note on Hashes
-
-While using [hashes](https://pip.pypa.io/en/stable/cli/pip_install/#hash-checking-mode) would be nice, different platforms, e.g. Apple's ARM vs Intel's x86, sometimes require different wheels with different hashes. This is true despite ensuring a consistent Linux OS in Docker sadly. In the spirit of enabling a diverse ecosystem of developers with different machines, I've kept hashing off.
+We use [`uv`](https://docs.astral.sh/uv/) to build source distributions and wheels. We then use [`check-wheel-contents`](https://github.com/jwodder/check-wheel-contents) to test for common errors and mistakes found when building Python wheels. Finally, we use [`twine check`](https://twine.readthedocs.io/en/latest/#twine-check) to check whether or not `pysparkplug`'s long description will render correctly on PyPI.
 
 ## Documentation
 
-_TL;DR: To build and test the documentation, run `./nox.sh -s docs`._
+_TL;DR: To build the documentation website, run `just docs`._
 
-We use [Sphinx](https://www.sphinx-doc.org/en/master/index.html) for documentation site generation. To build the documentation, run `./nox.sh -s docs`. To view it, open `docs/build/html/index.html` in your browser.
+We use [Sphinx](https://www.sphinx-doc.org/en/master/index.html) for documentation site generation. To view them, open `docs/build/html/index.html` in your browser.
 
-Sphinx configuration can be found in `docs/conf.py`. It is setup to generate pages based on what it finds in the `toctree` directive in `docs/index.md`. To add new pages, add them to the table of contents with that directive.
+Sphinx will only generate pages that have changed since your last build, but isn't perfect at this determination, so you may need to clear out your `docs/build` directory to start fresh. Sphinx configuration can be found in `docs/source/conf.py`.
+
+Sphinx is setup to generate pages based on what it finds in the `toctree` directive in `docs/source/index.md`. To add new pages, add them to the table of contents with that directive.
 
 ### API Reference
 
-The "API Reference" page is mostly auto-generated using the [`autodoc`](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html), [`autosummary`](https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html), [`intersphinx`](https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html), and [`linkcode`](https://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html) Sphinx extensions. Classes, functions, decorators, and so on need to be added manually to the `docs/api.rst` file, but once included, the entries are auto-generated using type annotations and docstrings.
+The "API Reference" page is auto-generated using the [`autodoc`](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html), [`autosummary`](https://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html), [`intersphinx`](https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html), and [`linkcode`](https://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html) Sphinx extensions. These pages and sub-pages are auto-generated using type annotations and docstrings.
 
 ### Docstring Formatting
 
@@ -116,13 +100,11 @@ While documentation for the `pysparkplug` package is generated and hosted by Rea
 
 ### Release Process
 
-Every push to the `main` branch on Github generates a draft release on Github. To publish a release, one should:
+Every push to the `main` branch on Github generates a draft release on Github and publishes a `dev` version to [TestPyPI](https://test.pypi.org). To publish a release, one should:
 
-1.) If creating a final release (i.e. not a pre-release), create and merge a pull request that updates the `CHANGELOG.md` such that the released changes section is renamed from "## Unreleased" to "## {MAJOR.MINOR.MICRO} (YYYY-MM-DD)"
+1.) Finalize any documentation in the `CHANGELOG.md` if this is a "final" release, i.e. not a dev or pre-release (alpha, beta, rc1, rc2, etc.). The released changes section should have the format "## {MAJOR.MINOR.MICRO} (YYYY-MM-DD)"
 
 2.) Review the draft release. Update the tag for the draft release to the version you want to release with a prefixed v, i.e. "v{MAJOR.MINOR.MICRO}", and add any additional notes as you see fit. Publish it. This will trigger the `release` Github Action, which will publish to [PyPI](https://pypi.org).
-
-3.) After confirming that the release on Github look good, as does the package on [PyPI](https://pypi.org), if this was a final release (i.e. you updated the `CHANGELOG.md`) create and merge a new pull request that creates a new "## Unreleased" section at the top of the `CHANGELOG.md`. This should have new, empty sections for Added, Changed, Deprecated, Removed, Fixed, and Security.
 
 ### Determining the Version
 
@@ -132,23 +114,19 @@ Intermediate versions between releases are incremented with `dev` and taken care
 
 ## Continuous Integration & Continuous Deployment
 
-We use Github actions to run our CI/CD pipeline on every pull request. The configuration can be found in `.github/workflows/cicd.yaml`. That said, every step of every job can also be run locally.
+We use Github actions to run our CI/CD pipeline on every pull request. The configuration can be found in `.github/workflows/cicd.yaml`. That said, most steps of most jobs can also be run locally.
 
 ### Main
 
-This is the "main" job, which consists of running the test suite, creating a draft release, and publishing the package to [TestPyPI](https://test.pypi.org).
+This is the "main" job that runs on every commit to a branch with a pull request to `main`, every push to `main`, and on workflow dispatch. It runs the tests, and on pushes to main publishes a draft Github Release and publishes a dev version of the package to [TestPyPI](https://test.pypi.org).
 
 ### OS Compatibility
 
-Using Github Actions' [build matrix feature](https://docs.github.com/en/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix), we're able to run unit tests on MacOS, Windows, & Linux, for each supported version of Python.
-
-### Publish
-
-A separate `publish` workflow is configured in `.github/workflows/publish.yaml`. This workflow publishes the package to [PyPI](https://pypi.org), and is triggered by a Github release being published.
+Using Github Actions' [build matrix feature](https://docs.github.com/en/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix), we're able to run unit tests on MacOS, Windows, & Linux, for each supported version of Python. The coverage report from each of these is then uploaded to [Codecov](https://about.codecov.io/).
 
 ## Pull Requests
 
-The `main` branch has [branch protections](https://help.github.com/en/github/administering-a-repository/about-protected-branches) turned on in Github, requiring one reviewer to approve a PR before merging. We also use the code owners feature to specify who can approve certain PRs. As well, merging a PR requires status checks (Read the Docs along with both CI/CD jobs) to complete successfully.
+The `main` branch has [branch protections](https://help.github.com/en/github/administering-a-repository/about-protected-branches) turned on in Github, requiring one reviewer to approve a PR before merging. We also use the code owners feature to specify who can approve certain PRs. As well, merging a PR requires status checks (Read the Docs, both CI/CD jobs, and codecov) to complete successfully.
 
 When naming a branch, please use the syntax `username/branch-name-here`. If you plan to collaborate with others on that branch, use `team/branch-name-here`.
 

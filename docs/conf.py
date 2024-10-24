@@ -5,8 +5,6 @@ For a full list of confiuration options, see the documentation:
 https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
-# pylint: disable=invalid-name
-
 import datetime
 import doctest
 import importlib.metadata
@@ -20,13 +18,13 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 # Setup sys.path so we can import other modules
 sys.path.append(REPO_ROOT)
 
-from docs import linkcode
+from docs import linkcode  # noqa: E402
 
 # -- Project information -----------------------------------------------------
 
 project = "PySparkplug"
 author = "Matt Fay"
-copyright = f"2023-{datetime.datetime.now().year}, {author}"  # pylint: disable=redefined-builtin
+copyright = f"2023-{datetime.datetime.now().year}, {author}"
 
 # The full version, including alpha/beta/rc tags
 release = importlib.metadata.version("pysparkplug")
@@ -51,13 +49,13 @@ pygments_dark_style = "monokai"
 # those explicitly ignored.
 nitpicky = True
 nitpick_ignore = [
-    ("py:class", "pysparkplug._payload.Payload"),
-    ("py:class", "paho.mqtt.client.MQTTMessage"),
+    ("py:class", "pysparkplug._payload._Cmd"),
+    ("py:class", "pysparkplug._payload._Data"),
     ("py:class", "pysparkplug._payload.Birth"),
+    ("py:class", "pysparkplug._payload.Payload"),
+    ("py:class", "pysparkplug._strenum.StrEnum"),
     ("py:class", "sparkplug_b_pb2.Metric"),
     ("py:class", "ssl._SSLMethod"),
-    ("py:class", "typing_extensions.Self"),
-    ("py:class", "Self"),
 ]
 
 # -- Extension configuration -------------------------------------------------
@@ -78,6 +76,9 @@ extensions = [
     "sphinxext.opengraph",
 ]
 
+# Document everything in __all__
+autosummary_ignore_module_all = False
+
 # Show typehints as content of the function or method The typehints of
 # overloaded functions or methods will still be represented in the
 # signature.
@@ -85,13 +86,13 @@ autodoc_typehints = "description"
 
 # A dictionary for users defined type aliases that maps a type name to
 # the full-qualified object name.
-autodoc_type_aliases = {
-    "Self": "typing.Self",
-    "typing_extensions.Self": "typing.Self",
-}
+autodoc_type_aliases = {}
 
 # Add links to modules and objects in the Python standard library documentation
-intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "paho.mqtt": ("https://eclipse.dev/paho/files/paho.mqtt.python/html/", None),
+}
 
 # Default flags for testing `doctest` directives used by the
 # `sphinx.ext.doctest` Sphinx extension

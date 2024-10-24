@@ -12,8 +12,9 @@ src/pysparkplug/_version.py
 /.vscode/
 /*.code-workspace
 
-# Cache from Docker container
-/.cache
-
 # Docs
 /docs/build
+/docs/api/
+
+# Coverage
+.coverage*

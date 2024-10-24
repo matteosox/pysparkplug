@@ -12,7 +12,7 @@ from packaging.version import Version
 import pysparkplug
 
 
-def linkcode_resolve(domain: str, info: dict[str, str]) -> str:
+def linkcode_resolve(domain: str, info: dict[str, str]) -> str | None:
     """
     linkcode Sphinx extension uses this function to map objects to be
     documented to external URLs where the code is kept, in our case
@@ -22,8 +22,12 @@ def linkcode_resolve(domain: str, info: dict[str, str]) -> str:
     if domain != "py":
         raise ValueError(f"Not currently documenting {domain}, only Python")
 
+    if not info["module"]:
+        return None
+
     modname = info["module"]
     fullname = info["fullname"]
+
     rel_url = _get_rel_url(modname, fullname)
     blob = _get_blob()
 
@@ -52,7 +56,12 @@ def _get_rel_url(modname: str, fullname: str) -> str:
     """Get the relative url given the module name and fullname"""
     obj = sys.modules[modname]
     for part in fullname.split("."):
-        obj = getattr(obj, part)
+        try:
+            obj = getattr(obj, part)
+        except AttributeError:
+            # When documenting instance attributes, they are not defined on the class,
+            # so just reference the class
+            pass
 
     # strip decorators, which would resolve to the source of the decorator
     # possibly an upstream bug in getsourcefile, bpo-1764286

@@ -66,7 +66,7 @@ class TLSConfig:
     certfile: Optional[str] = None
     keyfile: Optional[str] = None
     cert_reqs: ssl.VerifyMode = ssl.VerifyMode.CERT_REQUIRED
-    tls_version: ssl._SSLMethod = ssl.PROTOCOL_TLS  # pylint: disable=no-member
+    tls_version: ssl._SSLMethod = ssl.PROTOCOL_TLS
     ciphers: Optional[str] = None
 
 

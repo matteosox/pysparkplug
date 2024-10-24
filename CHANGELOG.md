@@ -3,6 +3,17 @@
 All notable changes for `pysparkplug` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Changelog](http://keepachangelog.com/).
 
+## 0.4.0 (2024-10-24)
+
+### Added
+- Pysparkplug now supports Python 3.13
+
+### Fixed
+- `EdgeNode.disconnect` now correctly sends an NDEATH payload.
+
+### Deprecated
+- Pysparkplug no longer supports Python 3.8, which has reached its end of life.
+
 ## 0.3.2 (2024-05-06)
 
 ### Fixed

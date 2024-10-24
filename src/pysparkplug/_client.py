@@ -56,7 +56,7 @@ class Client:
         client_options: ClientOptions = ClientOptions(),
     ) -> None:
         self._client = paho_mqtt.Client(
-            client_id=client_id,
+            client_id=client_id,  # type: ignore[reportArgumentType]
             clean_session=True,
             protocol=protocol,
             transport=(

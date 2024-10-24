@@ -2,7 +2,7 @@
 
 from pysparkplug._protobuf import sparkplug_b_pb2
 
-Payload = sparkplug_b_pb2.Payload  # type: ignore[attr-defined]  # pylint: disable=no-member
+Payload = sparkplug_b_pb2.Payload  # type: ignore[attr-defined]
 DataSet = Payload.DataSet
 DataSetValue = DataSet.DataSetValue
 DataSetValueExtension = DataSetValue.DataSetValueExtension
@@ -17,4 +17,4 @@ PropertyValueExtension = PropertyValue.PropertyValueExtension
 Template = Payload.Template
 Parameter = Template.Parameter
 ParameterValueExtension = Parameter.ParameterValueExtension
-DataType = sparkplug_b_pb2.DataType  # type: ignore[attr-defined]  # pylint: disable=no-member
+DataType = sparkplug_b_pb2.DataType  # type: ignore[attr-defined]

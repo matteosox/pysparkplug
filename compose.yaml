@@ -1,13 +1,4 @@
 services:
-  cicd:
-    build: .
-    volumes:
-      - ./:/root/pysparkplug
-    command: ["exit", "0"]
-    environment:
-      - GH_TOKEN
-      - TWINE_USERNAME
-      - TWINE_PASSWORD
   emqx:
     image: emqx/emqx:5.0.9
     ports:

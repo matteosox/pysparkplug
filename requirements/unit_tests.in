@@ -1,4 +1,0 @@
-coverage[toml]
-packaging
-pytest
---requirement requirements.txt
