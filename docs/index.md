@@ -8,7 +8,8 @@ Overview <self>
 api.rst
 changelog.md
 contributor_guide.md
-Report an Issue <https://github.com/matteosox/pysparkplug/issues>
+Bug Report <https://github.com/matteosox/pysparkplug/issues/new/choose>
+Feature Request <https://github.com/matteosox/pysparkplug/issues/new/choose>
 GitHub <https://github.com/matteosox/pysparkplug>
 PyPI <https://pypi.org/project/pysparkplug>
 ```

@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import dataclasses
 import json
+from abc import abstractmethod
 from collections.abc import Iterable
-from typing import Dict, Optional, cast
+from typing import Dict, Optional, Protocol, cast, runtime_checkable
 
 from pysparkplug import _protobuf as protobuf
 from pysparkplug._datatype import DataType
 from pysparkplug._metric import Metric
-from pysparkplug._types import Protocol, Self
+from pysparkplug._types import Self
 
 __all__ = [
     "NBirth",
@@ -25,10 +26,12 @@ __all__ = [
 ]
 
 
+@runtime_checkable
 class Payload(Protocol):
     """Protocol defining the methods a payload should have"""
 
     @classmethod
+    @abstractmethod
     def decode(cls, raw: bytes, *, birth: Optional[Birth] = None) -> Self:
         """Construct a Payload object from bytes
 
@@ -42,7 +45,9 @@ class Payload(Protocol):
         Returns:
             Payload object
         """
+        raise NotImplementedError()
 
+    @abstractmethod
     def encode(self, *, include_dtypes: bool = False) -> bytes:
         """Encode Payload object into bytes
 
@@ -53,6 +58,7 @@ class Payload(Protocol):
         Returns:
             encoded payload in bytes
         """
+        raise NotImplementedError()
 
 
 class _PBPayload:
@@ -98,12 +104,12 @@ class _PBPayload:
             encoded payload in bytes
         """
         payload = protobuf.Payload()
-        payload.timestamp = self.timestamp  # type: ignore[attr-defined] # pylint: disable=no-member
+        payload.timestamp = self.timestamp  # type: ignore[attr-defined]
         if hasattr(self, "seq"):
-            payload.seq = self.seq
+            payload.seq = self.seq  # type: ignore[reportAttributeAccessIssue]
         payload.metrics.extend(
             metric.to_pb(include_dtype=include_dtypes)
-            for metric in self.metrics  # type: ignore[attr-defined] # pylint: disable=no-member
+            for metric in self.metrics  # type: ignore[attr-defined]
         )
         return cast(bytes, payload.SerializeToString())
 
@@ -305,7 +311,7 @@ class NDeath:
         cls,
         raw: bytes,
         *,
-        birth: Optional[Birth] = None,  # pylint: disable=unused-argument
+        birth: Optional[Birth] = None,
     ) -> Self:
         """Construct an NDeath object from bytes
 
@@ -361,7 +367,7 @@ class DDeath:
         cls,
         raw: bytes,
         *,
-        birth: Optional[Birth] = None,  # pylint: disable=unused-argument
+        birth: Optional[Birth] = None,
     ) -> Self:
         """Construct a DDeath object from bytes
 
@@ -380,9 +386,7 @@ class DDeath:
             seq=payload.seq,
         )
 
-    def encode(
-        self, *, include_dtypes: bool = False  # pylint: disable=unused-argument
-    ) -> bytes:
+    def encode(self, *, include_dtypes: bool = False) -> bytes:
         """Encode DDeath object into bytes
 
         Args:
@@ -417,7 +421,7 @@ class State:
         cls,
         raw: bytes,
         *,
-        birth: Optional[Birth] = None,  # pylint: disable=unused-argument
+        birth: Optional[Birth] = None,
     ) -> Self:
         """Construct a State object from bytes
 
@@ -436,9 +440,7 @@ class State:
             online=state["online"],
         )
 
-    def encode(
-        self, *, include_dtypes: bool = False  # pylint: disable=unused-argument
-    ) -> bytes:
+    def encode(self, *, include_dtypes: bool = False) -> bytes:
         """Encode State object into bytes
 
         Args:

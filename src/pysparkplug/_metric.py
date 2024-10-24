@@ -42,7 +42,7 @@ class Metric:
     is_transient: bool = False
     is_null: bool = False
 
-    def to_pb(self, include_dtype: bool) -> PB_Metric:
+    def to_pb(self, include_dtype: bool) -> PB_Metric:  # type: ignore[reportInvalidTypeForm]
         """Returns a Protobuf metric
 
         Args:
@@ -69,7 +69,7 @@ class Metric:
         return metric
 
     @classmethod
-    def from_pb(cls, metric: PB_Metric) -> Self:
+    def from_pb(cls, metric: PB_Metric) -> Self:  # type: ignore[reportInvalidTypeForm]
         """Constructs a Metric object from a Protobuf metric
 
         Args:

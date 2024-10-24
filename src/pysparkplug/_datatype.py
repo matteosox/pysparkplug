@@ -45,7 +45,7 @@ class DataType(enum.IntEnum):
             encoder = _encoders[self]
         except KeyError as exc:
             raise ValueError(f"{self} cannot be encoded") from exc
-        return encoder(value)  # type: ignore[no-any-return,no-untyped-call]
+        return encoder(value)
 
     def decode(self, value: Union[int, float, bool, str, bytes]) -> MetricValue:
         """Decode a value from the form it takes in a Sparkplug B Protobuf object"""
@@ -53,7 +53,7 @@ class DataType(enum.IntEnum):
             decoder = _decoders[self]
         except KeyError as exc:
             raise ValueError(f"{self} cannot be decoded") from exc
-        return decoder(value)  # type: ignore[no-any-return,no-untyped-call]
+        return decoder(value)
 
 
 _fields = {
