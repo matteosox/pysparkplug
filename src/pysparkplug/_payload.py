@@ -138,15 +138,18 @@ class Birth(_PBPayload):
     )
 
     def __post_init__(self) -> None:
+        """Validates payload"""
+        if not isinstance(self.timestamp, int):
+            raise TypeError("timestamp must be an integer")
+        if not isinstance(self.seq, int):
+            raise TypeError("seq must be an integer")
+        if not isinstance(self.metrics, (list, tuple)):
+            raise TypeError("metrics must be a list or tuple")
         for metric in self.metrics:
-            if metric.name is None:
-                raise ValueError(
-                    f"Metric {metric} must have a defined name when provided to a Birth payload"
-                )
-            if metric.datatype == DataType.UNKNOWN:
-                raise ValueError(
-                    f"Metric {metric} must have a defined datatype when provided to a Birth payload"
-                )
+            if not isinstance(metric, Metric):
+                raise TypeError("metrics must be a list of Metric")
+            if metric.datatype == DataType.Unknown:
+                raise ValueError("metric datatype cannot be Unknown")
             if metric.alias is not None:
                 self._names_mapping[metric.alias] = metric.name
             self._dtypes_mapping[metric.name] = metric.datatype

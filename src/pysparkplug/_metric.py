@@ -65,6 +65,7 @@ class Metric:
         if self.is_null or self.value is None:
             metric.is_null = True
         else:
+            # All array types use bytes_value in protobuf
             setattr(metric, self.datatype.field, self.datatype.encode(self.value))
         return metric
 

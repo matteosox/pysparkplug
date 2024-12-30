@@ -150,7 +150,6 @@ When naming a branch, please use the syntax `username/branch-name-here`. If you 
     - Metadata
     - Properties
     - DataSet types
-    - Array types
 - MQTT v5
 - Historian/analytics (just listens)
 - Refactor all of `_payload.py`.
