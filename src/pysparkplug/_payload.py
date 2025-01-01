@@ -14,14 +14,14 @@ from pysparkplug._metric import Metric
 from pysparkplug._types import Self
 
 __all__ = [
-    "NBirth",
     "DBirth",
-    "NData",
-    "DData",
-    "NCmd",
     "DCmd",
-    "NDeath",
+    "DData",
     "DDeath",
+    "NBirth",
+    "NCmd",
+    "NData",
+    "NDeath",
     "State",
 ]
 
@@ -150,6 +150,8 @@ class Birth(_PBPayload):
                 raise TypeError("metrics must be a list of Metric")
             if metric.datatype == DataType.UNKNOWN:
                 raise ValueError("metric datatype cannot be UNKNOWN")
+            if metric.name is None:
+                raise TypeError("metric name cannot be None")
             if metric.alias is not None:
                 self._names_mapping[metric.alias] = metric.name
             self._dtypes_mapping[metric.name] = metric.datatype

@@ -2,8 +2,8 @@
 
 import datetime
 import enum
-from typing import Union, List, Any, Callable
 import struct
+from typing import Any, List, Union
 
 from pysparkplug._types import MetricValue
 
@@ -132,16 +132,70 @@ def _encode_array_to_bytes(values: List[Any], format_char: str) -> bytes:
         )
 
 
+def validate_integer_range(value: int, bits: int, signed: bool = False) -> int:
+    """Validate integer values are within their bit range and return the value if valid.
+
+    Args:
+        value: Integer value to validate
+        bits: Number of bits for the integer type
+        signed: If True, treat as signed int, otherwise as unsigned int
+
+    Returns:
+        The validated integer value
+
+    Raises:
+        TypeError: If value is not an integer
+        OverflowError: If value is outside valid range for the specified bits
+    """
+    if not isinstance(value, int):
+        raise TypeError(f"Expected int, got {type(value)}")
+
+    if signed:
+        max_val = 2 ** (bits - 1)
+        if not -max_val <= value < max_val:
+            raise OverflowError(f"Int{bits} overflow with value {value}")
+    elif not 0 <= value < 2**bits:
+        raise OverflowError(f"UInt{bits} overflow with value {value}")
+    return value
+
+
 _encoders = {
-    # Scalar encoders
-    DataType.INT8: lambda val: val,
-    DataType.INT16: lambda val: val,
-    DataType.INT32: lambda val: val,
-    DataType.INT64: lambda val: val,
-    DataType.UINT8: lambda val: val,
-    DataType.UINT16: lambda val: val,
-    DataType.UINT32: lambda val: val,
-    DataType.UINT64: lambda val: val,
+    # Unsigned integers (default)
+    DataType.UINT8: lambda val: validate_integer_range(val, 8),
+    DataType.UINT16: lambda val: validate_integer_range(val, 16),
+    DataType.UINT32: lambda val: validate_integer_range(val, 32),
+    DataType.UINT64: lambda val: validate_integer_range(val, 64),
+    # Signed integers (explicit signed=True)
+    DataType.INT8: lambda val: validate_integer_range(val, 8, signed=True),
+    DataType.INT16: lambda val: validate_integer_range(val, 16, signed=True),
+    DataType.INT32: lambda val: validate_integer_range(val, 32, signed=True),
+    DataType.INT64: lambda val: validate_integer_range(val, 64, signed=True),
+    # Array encoders - validate before encoding
+    DataType.INT8_ARRAY: lambda val: _encode_array_to_bytes(
+        [validate_integer_range(v, 8, signed=True) for v in val], "b"
+    ),
+    DataType.INT16_ARRAY: lambda val: _encode_array_to_bytes(
+        [validate_integer_range(v, 16, signed=True) for v in val], "h"
+    ),
+    DataType.INT32_ARRAY: lambda val: _encode_array_to_bytes(
+        [validate_integer_range(v, 32, signed=True) for v in val], "i"
+    ),
+    DataType.INT64_ARRAY: lambda val: _encode_array_to_bytes(
+        [validate_integer_range(v, 64, signed=True) for v in val], "q"
+    ),
+    DataType.UINT8_ARRAY: lambda val: _encode_array_to_bytes(
+        [validate_integer_range(v, 8) for v in val], "B"
+    ),
+    DataType.UINT16_ARRAY: lambda val: _encode_array_to_bytes(
+        [validate_integer_range(v, 16) for v in val], "H"
+    ),
+    DataType.UINT32_ARRAY: lambda val: _encode_array_to_bytes(
+        [validate_integer_range(v, 32) for v in val], "I"
+    ),
+    DataType.UINT64_ARRAY: lambda val: _encode_array_to_bytes(
+        [validate_integer_range(v, 64) for v in val], "Q"
+    ),
+    # Other types (unchanged)
     DataType.FLOAT: lambda val: val,
     DataType.DOUBLE: lambda val: val,
     DataType.BOOLEAN: lambda val: val,
@@ -151,15 +205,7 @@ _encoders = {
     DataType.UUID: lambda val: val,
     DataType.BYTES: lambda val: val,
     DataType.FILE: lambda val: val,
-    # Array encoders
-    DataType.INT8_ARRAY: lambda val: _encode_array_to_bytes(val, "b"),
-    DataType.INT16_ARRAY: lambda val: _encode_array_to_bytes(val, "h"),
-    DataType.INT32_ARRAY: lambda val: _encode_array_to_bytes(val, "i"),
-    DataType.INT64_ARRAY: lambda val: _encode_array_to_bytes(val, "q"),
-    DataType.UINT8_ARRAY: lambda val: _encode_array_to_bytes(val, "B"),
-    DataType.UINT16_ARRAY: lambda val: _encode_array_to_bytes(val, "H"),
-    DataType.UINT32_ARRAY: lambda val: _encode_array_to_bytes(val, "I"),
-    DataType.UINT64_ARRAY: lambda val: _encode_array_to_bytes(val, "Q"),
+    # Other arrays (unchanged)
     DataType.FLOAT_ARRAY: lambda val: _encode_array_to_bytes(val, "f"),
     DataType.DOUBLE_ARRAY: lambda val: _encode_array_to_bytes(val, "d"),
     DataType.BOOLEAN_ARRAY: lambda val: bytes([1 if x else 0 for x in val]),
@@ -169,24 +215,6 @@ _encoders = {
         [int(v.timestamp() * 1000) for v in val], "q"
     ),
 }
-
-
-def _validate_int_array(values: List[Any], bits: int, signed: bool = True) -> List[int]:
-    """Validates each integer value in an array fits within specified bit range
-
-    Args:
-        values: List of integer values to validate
-        bits: Number of bits each integer should fit in
-        signed: Whether the integers are signed or unsigned
-
-    Returns:
-        The validated list of integers
-
-    Raises:
-        ValueError: If any value is outside the valid range for the specified bits
-    """
-    decoder = _int_decoder(bits, signed)
-    return [decoder(v) for v in values]
 
 
 def _decode_bytes_to_array(data: bytes, format_char: str) -> List[Any]:
@@ -214,14 +242,46 @@ def _decode_bytes_to_array(data: bytes, format_char: str) -> List[Any]:
 
 
 _decoders = {
-    DataType.UINT8: lambda val: _uint_coder(val, 8),
-    DataType.UINT16: lambda val: _uint_coder(val, 16),
-    DataType.UINT32: lambda val: _uint_coder(val, 32),
-    DataType.UINT64: lambda val: _uint_coder(val, 64),
-    DataType.INT8: lambda val: _int_decoder(val, 8),
-    DataType.INT16: lambda val: _int_decoder(val, 16),
-    DataType.INT32: lambda val: _int_decoder(val, 32),
-    DataType.INT64: lambda val: _int_decoder(val, 64),
+    # Unsigned integers
+    DataType.UINT8: lambda val: validate_integer_range(val, 8),
+    DataType.UINT16: lambda val: validate_integer_range(val, 16),
+    DataType.UINT32: lambda val: validate_integer_range(val, 32),
+    DataType.UINT64: lambda val: validate_integer_range(val, 64),
+    # Signed integers
+    DataType.INT8: lambda val: validate_integer_range(val, 8, signed=True),
+    DataType.INT16: lambda val: validate_integer_range(val, 16, signed=True),
+    DataType.INT32: lambda val: validate_integer_range(val, 32, signed=True),
+    DataType.INT64: lambda val: validate_integer_range(val, 64, signed=True),
+    # Array decoders - validate after decoding
+    DataType.INT8_ARRAY: lambda val: [
+        validate_integer_range(v, 8, signed=True)
+        for v in _decode_bytes_to_array(val, "b")
+    ],
+    DataType.INT16_ARRAY: lambda val: [
+        validate_integer_range(v, 16, signed=True)
+        for v in _decode_bytes_to_array(val, "h")
+    ],
+    DataType.INT32_ARRAY: lambda val: [
+        validate_integer_range(v, 32, signed=True)
+        for v in _decode_bytes_to_array(val, "i")
+    ],
+    DataType.INT64_ARRAY: lambda val: [
+        validate_integer_range(v, 64, signed=True)
+        for v in _decode_bytes_to_array(val, "q")
+    ],
+    DataType.UINT8_ARRAY: lambda val: [
+        validate_integer_range(v, 8) for v in _decode_bytes_to_array(val, "B")
+    ],
+    DataType.UINT16_ARRAY: lambda val: [
+        validate_integer_range(v, 16) for v in _decode_bytes_to_array(val, "H")
+    ],
+    DataType.UINT32_ARRAY: lambda val: [
+        validate_integer_range(v, 32) for v in _decode_bytes_to_array(val, "I")
+    ],
+    DataType.UINT64_ARRAY: lambda val: [
+        validate_integer_range(v, 64) for v in _decode_bytes_to_array(val, "Q")
+    ],
+    # Non-integer types (unchanged)
     DataType.FLOAT: lambda val: val,
     DataType.DOUBLE: lambda val: val,
     DataType.BOOLEAN: lambda val: val,
@@ -233,31 +293,7 @@ _decoders = {
     DataType.UUID: lambda val: val,
     DataType.BYTES: lambda val: val,
     DataType.FILE: lambda val: val,
-    # Array decoders with validation
-    DataType.INT8_ARRAY: lambda val: _validate_int_array(
-        _decode_bytes_to_array(val, "b"), 8
-    ),
-    DataType.INT16_ARRAY: lambda val: _validate_int_array(
-        _decode_bytes_to_array(val, "h"), 16
-    ),
-    DataType.INT32_ARRAY: lambda val: _validate_int_array(
-        _decode_bytes_to_array(val, "i"), 32
-    ),
-    DataType.INT64_ARRAY: lambda val: _validate_int_array(
-        _decode_bytes_to_array(val, "q"), 64
-    ),
-    DataType.UINT8_ARRAY: lambda val: _validate_int_array(
-        _decode_bytes_to_array(val, "B"), 8, signed=False
-    ),
-    DataType.UINT16_ARRAY: lambda val: _validate_int_array(
-        _decode_bytes_to_array(val, "H"), 16, signed=False
-    ),
-    DataType.UINT32_ARRAY: lambda val: _validate_int_array(
-        _decode_bytes_to_array(val, "I"), 32, signed=False
-    ),
-    DataType.UINT64_ARRAY: lambda val: _validate_int_array(
-        _decode_bytes_to_array(val, "Q"), 64, signed=False
-    ),
+    # Array decoders (already updated in previous change)
     DataType.FLOAT_ARRAY: lambda val: _decode_bytes_to_array(val, "f"),
     DataType.DOUBLE_ARRAY: lambda val: _decode_bytes_to_array(val, "d"),
     DataType.BOOLEAN_ARRAY: lambda val: [bool(b) for b in val],
@@ -269,37 +305,3 @@ _decoders = {
         for v in _decode_bytes_to_array(val, "q")
     ],
 }
-
-
-def _uint_coder(value: int, bits: int) -> int:
-    if not 0 <= value < 2**bits:
-        raise OverflowError(f"UInt{bits} overflow with value {value}")
-    return value
-
-
-def _int_encoder(value: int, bits: int) -> int:
-    max_val: int = 2 ** (bits - 1)
-    if not -max_val <= value < max_val:
-        raise OverflowError(f"Int{bits} overflow with value {value}")
-    return value + (max_val * 2 if value < 0 else 0)
-
-
-def _int_decoder(bits: int, signed: bool = True) -> Callable[[int], int]:
-    """Returns a function that validates and decodes an integer value"""
-    if signed:
-        min_val = -(2 ** (bits - 1))
-        max_val = (2 ** (bits - 1)) - 1
-    else:
-        min_val = 0
-        max_val = (2**bits) - 1
-
-    def decoder(value: int) -> int:
-        if not isinstance(value, int):
-            raise TypeError(f"Expected int, got {type(value)}")
-        if not min_val <= value <= max_val:
-            raise ValueError(
-                f"Value {value} outside valid range [{min_val}, {max_val}]"
-            )
-        return value
-
-    return decoder

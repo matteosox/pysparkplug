@@ -2,7 +2,7 @@
 
 import datetime
 import sys
-from typing import Union, List
+from typing import List, Union
 
 if sys.version_info < (3, 11):
     from typing_extensions import Self, TypeAlias

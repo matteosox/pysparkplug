@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-import pysparkplug as psp
 import time
+
+import pysparkplug as psp
 
 
 def on_message(client, userdata, message):
@@ -18,7 +19,7 @@ def on_message(client, userdata, message):
         # Decode the payload based on the message type
         payload = topic.message_type.payload.decode(message.payload)
 
-        print(f"\nReceived message:")
+        print("\nReceived message:")
         print(f"Topic: {topic}")
         print(f"Message Type: {topic.message_type}")
         if hasattr(payload, "metrics"):

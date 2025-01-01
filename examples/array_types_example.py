@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import pysparkplug as psp
 from datetime import datetime, timezone
-import time
+
+import pysparkplug as psp
 
 
 def main():
