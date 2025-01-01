@@ -35,7 +35,7 @@ class DataType(enum.IntEnum):
     TEMPLATE = 19
     PROPERTYSET = 20
     PROPERTYSETLIST = 21
-    
+
     # Array Types - values starting at 22 per Sparkplug B spec
     INT8_ARRAY = 22
     INT16_ARRAY = 23
@@ -109,9 +109,10 @@ _fields = {
     DataType.DATETIME_ARRAY: "bytes_value",
 }
 
+
 def _encode_array_to_bytes(values: List[Any], format_char: str) -> bytes:
     """Convert array to bytes using specified format
-    
+
     Args:
         values: List of values to encode
         format_char: Format character for struct.pack:
@@ -126,7 +127,10 @@ def _encode_array_to_bytes(values: List[Any], format_char: str) -> bytes:
     try:
         return struct.pack(format_str, *values)
     except struct.error as e:
-        raise ValueError(f"Failed to encode array values {values} with format {format_char}: {e}")
+        raise ValueError(
+            f"Failed to encode array values {values} with format {format_char}: {e}"
+        )
+
 
 _encoders = {
     # Scalar encoders
@@ -147,45 +151,47 @@ _encoders = {
     DataType.UUID: lambda val: val,
     DataType.BYTES: lambda val: val,
     DataType.FILE: lambda val: val,
-    
     # Array encoders
-    DataType.INT8_ARRAY: lambda val: _encode_array_to_bytes(val, 'b'),
-    DataType.INT16_ARRAY: lambda val: _encode_array_to_bytes(val, 'h'),
-    DataType.INT32_ARRAY: lambda val: _encode_array_to_bytes(val, 'i'),
-    DataType.INT64_ARRAY: lambda val: _encode_array_to_bytes(val, 'q'),
-    DataType.UINT8_ARRAY: lambda val: _encode_array_to_bytes(val, 'B'),
-    DataType.UINT16_ARRAY: lambda val: _encode_array_to_bytes(val, 'H'),
-    DataType.UINT32_ARRAY: lambda val: _encode_array_to_bytes(val, 'I'),
-    DataType.UINT64_ARRAY: lambda val: _encode_array_to_bytes(val, 'Q'),
-    DataType.FLOAT_ARRAY: lambda val: _encode_array_to_bytes(val, 'f'),
-    DataType.DOUBLE_ARRAY: lambda val: _encode_array_to_bytes(val, 'd'),
+    DataType.INT8_ARRAY: lambda val: _encode_array_to_bytes(val, "b"),
+    DataType.INT16_ARRAY: lambda val: _encode_array_to_bytes(val, "h"),
+    DataType.INT32_ARRAY: lambda val: _encode_array_to_bytes(val, "i"),
+    DataType.INT64_ARRAY: lambda val: _encode_array_to_bytes(val, "q"),
+    DataType.UINT8_ARRAY: lambda val: _encode_array_to_bytes(val, "B"),
+    DataType.UINT16_ARRAY: lambda val: _encode_array_to_bytes(val, "H"),
+    DataType.UINT32_ARRAY: lambda val: _encode_array_to_bytes(val, "I"),
+    DataType.UINT64_ARRAY: lambda val: _encode_array_to_bytes(val, "Q"),
+    DataType.FLOAT_ARRAY: lambda val: _encode_array_to_bytes(val, "f"),
+    DataType.DOUBLE_ARRAY: lambda val: _encode_array_to_bytes(val, "d"),
     DataType.BOOLEAN_ARRAY: lambda val: bytes([1 if x else 0 for x in val]),
-    DataType.STRING_ARRAY: lambda val: b'\0'.join(s.encode('utf-8') for s in val) + b'\0',
+    DataType.STRING_ARRAY: lambda val: b"\0".join(s.encode("utf-8") for s in val)
+    + b"\0",
     DataType.DATETIME_ARRAY: lambda val: _encode_array_to_bytes(
-        [int(v.timestamp() * 1000) for v in val], 'q'
+        [int(v.timestamp() * 1000) for v in val], "q"
     ),
 }
 
+
 def _validate_int_array(values: List[Any], bits: int, signed: bool = True) -> List[int]:
     """Validates each integer value in an array fits within specified bit range
-    
+
     Args:
         values: List of integer values to validate
         bits: Number of bits each integer should fit in
         signed: Whether the integers are signed or unsigned
-    
+
     Returns:
         The validated list of integers
-    
+
     Raises:
         ValueError: If any value is outside the valid range for the specified bits
     """
     decoder = _int_decoder(bits, signed)
     return [decoder(v) for v in values]
 
+
 def _decode_bytes_to_array(data: bytes, format_char: str) -> List[Any]:
     """Convert bytes back to array using specified format
-    
+
     Args:
         data: Bytes to decode
         format_char: Format character for struct.unpack:
@@ -202,7 +208,10 @@ def _decode_bytes_to_array(data: bytes, format_char: str) -> List[Any]:
     try:
         return list(struct.unpack(format_str, data))
     except struct.error as e:
-        raise ValueError(f"Failed to decode bytes {data} with format {format_char}: {e}")
+        raise ValueError(
+            f"Failed to decode bytes {data} with format {format_char}: {e}"
+        )
+
 
 _decoders = {
     DataType.UINT8: lambda val: _uint_coder(val, 8),
@@ -224,23 +233,40 @@ _decoders = {
     DataType.UUID: lambda val: val,
     DataType.BYTES: lambda val: val,
     DataType.FILE: lambda val: val,
-    
     # Array decoders with validation
-    DataType.INT8_ARRAY: lambda val: _validate_int_array(_decode_bytes_to_array(val, 'b'), 8),
-    DataType.INT16_ARRAY: lambda val: _validate_int_array(_decode_bytes_to_array(val, 'h'), 16),
-    DataType.INT32_ARRAY: lambda val: _validate_int_array(_decode_bytes_to_array(val, 'i'), 32),
-    DataType.INT64_ARRAY: lambda val: _validate_int_array(_decode_bytes_to_array(val, 'q'), 64),
-    DataType.UINT8_ARRAY: lambda val: _validate_int_array(_decode_bytes_to_array(val, 'B'), 8, signed=False),
-    DataType.UINT16_ARRAY: lambda val: _validate_int_array(_decode_bytes_to_array(val, 'H'), 16, signed=False),
-    DataType.UINT32_ARRAY: lambda val: _validate_int_array(_decode_bytes_to_array(val, 'I'), 32, signed=False),
-    DataType.UINT64_ARRAY: lambda val: _validate_int_array(_decode_bytes_to_array(val, 'Q'), 64, signed=False),
-    DataType.FLOAT_ARRAY: lambda val: _decode_bytes_to_array(val, 'f'),
-    DataType.DOUBLE_ARRAY: lambda val: _decode_bytes_to_array(val, 'd'),
+    DataType.INT8_ARRAY: lambda val: _validate_int_array(
+        _decode_bytes_to_array(val, "b"), 8
+    ),
+    DataType.INT16_ARRAY: lambda val: _validate_int_array(
+        _decode_bytes_to_array(val, "h"), 16
+    ),
+    DataType.INT32_ARRAY: lambda val: _validate_int_array(
+        _decode_bytes_to_array(val, "i"), 32
+    ),
+    DataType.INT64_ARRAY: lambda val: _validate_int_array(
+        _decode_bytes_to_array(val, "q"), 64
+    ),
+    DataType.UINT8_ARRAY: lambda val: _validate_int_array(
+        _decode_bytes_to_array(val, "B"), 8, signed=False
+    ),
+    DataType.UINT16_ARRAY: lambda val: _validate_int_array(
+        _decode_bytes_to_array(val, "H"), 16, signed=False
+    ),
+    DataType.UINT32_ARRAY: lambda val: _validate_int_array(
+        _decode_bytes_to_array(val, "I"), 32, signed=False
+    ),
+    DataType.UINT64_ARRAY: lambda val: _validate_int_array(
+        _decode_bytes_to_array(val, "Q"), 64, signed=False
+    ),
+    DataType.FLOAT_ARRAY: lambda val: _decode_bytes_to_array(val, "f"),
+    DataType.DOUBLE_ARRAY: lambda val: _decode_bytes_to_array(val, "d"),
     DataType.BOOLEAN_ARRAY: lambda val: [bool(b) for b in val],
-    DataType.STRING_ARRAY: lambda val: [s.decode('utf-8') for s in val.split(b'\0') if s],
+    DataType.STRING_ARRAY: lambda val: [
+        s.decode("utf-8") for s in val.split(b"\0") if s
+    ],
     DataType.DATETIME_ARRAY: lambda val: [
-        datetime.datetime.fromtimestamp(v/1000, datetime.timezone.utc) 
-        for v in _decode_bytes_to_array(val, 'q')
+        datetime.datetime.fromtimestamp(v / 1000, datetime.timezone.utc)
+        for v in _decode_bytes_to_array(val, "q")
     ],
 }
 
@@ -265,7 +291,7 @@ def _int_decoder(bits: int, signed: bool = True) -> Callable[[int], int]:
         max_val = (2 ** (bits - 1)) - 1
     else:
         min_val = 0
-        max_val = (2 ** bits) - 1
+        max_val = (2**bits) - 1
 
     def decoder(value: int) -> int:
         if not isinstance(value, int):
