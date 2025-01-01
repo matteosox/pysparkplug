@@ -27,35 +27,35 @@ def main():
             psp.Metric(
                 timestamp=psp.get_current_timestamp(),
                 name="int32_array",
-                datatype=psp.DataType.Int32Array,
+                datatype=psp.DataType.INT32_ARRAY,
                 value=[1, 2, 3, 4, 5]
             ),
             
             psp.Metric(
                 timestamp=psp.get_current_timestamp(),
                 name="float_array",
-                datatype=psp.DataType.FloatArray,
+                datatype=psp.DataType.FLOAT_ARRAY,
                 value=[1.1, 2.2, 3.3, 4.4, 5.5]
             ),
             
             psp.Metric(
                 timestamp=psp.get_current_timestamp(),
                 name="boolean_array",
-                datatype=psp.DataType.BooleanArray,
+                datatype=psp.DataType.BOOLEAN_ARRAY,
                 value=[True, False, True, True, False]
             ),
             
             psp.Metric(
                 timestamp=psp.get_current_timestamp(),
                 name="string_array",
-                datatype=psp.DataType.StringArray,
+                datatype=psp.DataType.STRING_ARRAY,
                 value=["one", "two", "three", "four", "five"]
             ),
             
             psp.Metric(
                 timestamp=psp.get_current_timestamp(),
                 name="datetime_array",
-                datatype=psp.DataType.DateTimeArray,
+                datatype=psp.DataType.DATETIME_ARRAY,
                 value=[
                     datetime.now(timezone.utc),
                     datetime.now(timezone.utc),

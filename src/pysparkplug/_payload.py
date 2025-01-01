@@ -148,8 +148,8 @@ class Birth(_PBPayload):
         for metric in self.metrics:
             if not isinstance(metric, Metric):
                 raise TypeError("metrics must be a list of Metric")
-            if metric.datatype == DataType.Unknown:
-                raise ValueError("metric datatype cannot be Unknown")
+            if metric.datatype == DataType.UNKNOWN:
+                raise ValueError("metric datatype cannot be UNKNOWN")
             if metric.alias is not None:
                 self._names_mapping[metric.alias] = metric.name
             self._dtypes_mapping[metric.name] = metric.datatype
