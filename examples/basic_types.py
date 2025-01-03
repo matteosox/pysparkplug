@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-from datetime import datetime, timezone
-import math
 import uuid
+from datetime import datetime, timezone
+
 import pysparkplug as psp
+
 
 def main():
     # Initialize client
@@ -75,7 +76,6 @@ def main():
                 datatype=psp.DataType.INT64,
                 value=9223372036854775807,  # 2^63 - 1
             ),
-            
             # Unsigned integers at their limits
             psp.Metric(
                 timestamp=psp.get_current_timestamp(),
@@ -125,7 +125,6 @@ def main():
                 datatype=psp.DataType.UINT64,
                 value=18446744073709551615,  # 2^64 - 1
             ),
-
             # Floating point numbers
             psp.Metric(
                 timestamp=psp.get_current_timestamp(),
@@ -143,7 +142,7 @@ def main():
                 timestamp=psp.get_current_timestamp(),
                 name="float_big",
                 datatype=psp.DataType.FLOAT,
-                value=3.402823e+38,  # Approximately largest float
+                value=3.402823e38,  # Approximately largest float
             ),
             psp.Metric(
                 timestamp=psp.get_current_timestamp(),
@@ -161,9 +160,8 @@ def main():
                 timestamp=psp.get_current_timestamp(),
                 name="double_big",
                 datatype=psp.DataType.DOUBLE,
-                value=1.7976931348623157e+308,  # Approximately largest double
+                value=1.7976931348623157e308,  # Approximately largest double
             ),
-
             # Boolean values
             psp.Metric(
                 timestamp=psp.get_current_timestamp(),
@@ -177,7 +175,6 @@ def main():
                 datatype=psp.DataType.BOOLEAN,
                 value=False,
             ),
-
             # String types
             psp.Metric(
                 timestamp=psp.get_current_timestamp(),
@@ -197,7 +194,6 @@ def main():
                 datatype=psp.DataType.TEXT,
                 value="Line 1\nLine 2\nLine 3",
             ),
-
             # Date and time
             psp.Metric(
                 timestamp=psp.get_current_timestamp(),
@@ -215,9 +211,10 @@ def main():
                 timestamp=psp.get_current_timestamp(),
                 name="datetime_future",
                 datatype=psp.DataType.DATETIME,
-                value=datetime(2038, 1, 19, tzinfo=timezone.utc),  # Near Unix 32-bit limit
+                value=datetime(
+                    2038, 1, 19, tzinfo=timezone.utc
+                ),  # Near Unix 32-bit limit
             ),
-
             # UUID and bytes
             psp.Metric(
                 timestamp=psp.get_current_timestamp(),
@@ -235,9 +232,7 @@ def main():
 
         # Create DBIRTH payload with metrics
         payload = psp.DBirth(
-            timestamp=psp.get_current_timestamp(),
-            metrics=metrics,
-            seq=0
+            timestamp=psp.get_current_timestamp(), metrics=metrics, seq=0
         )
 
         # Create topic for DBIRTH message
@@ -245,17 +240,14 @@ def main():
             message_type=psp.MessageType.DBIRTH,
             group_id=group_id,
             edge_node_id=edge_node_id,
-            device_id=device_id
+            device_id=device_id,
         )
 
         print(f"Publishing DBIRTH message to topic: {topic}")
         # Publish the message
         client.publish(
             psp.Message(
-                topic=topic,
-                payload=payload,
-                qos=psp.QoS.AT_LEAST_ONCE,
-                retain=False
+                topic=topic, payload=payload, qos=psp.QoS.AT_LEAST_ONCE, retain=False
             ),
             include_dtypes=True,
         )
@@ -265,7 +257,8 @@ def main():
         client.disconnect()
         print("Disconnected from MQTT broker")
 
+
 if __name__ == "__main__":
-    main() 
+    main()
 if __name__ == "__main__":
-    main() 
+    main()

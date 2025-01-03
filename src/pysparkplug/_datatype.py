@@ -161,12 +161,12 @@ def validate_integer(value: int, bits: int, signed: bool = False) -> int:
 
 def encode_int(value: int, bits: int, signed: bool = False) -> int:
     """Encode integer value to unsigned representation
-    
+
     Args:
         value: Integer value to encode
         bits: Number of bits (8, 16, 32, or 64)
         signed: If True, treat as signed int, otherwise as unsigned
-        
+
     Returns:
         Encoded unsigned integer value
     """
@@ -178,24 +178,24 @@ def encode_int(value: int, bits: int, signed: bool = False) -> int:
 
 def decode_int(value: int, bits: int, signed: bool = False) -> int:
     """Decode unsigned representation back to integer value
-    
+
     Args:
         value: Unsigned integer value to decode
         bits: Number of bits (8, 16, 32, or 64)
         signed: If True, treat as signed int, otherwise as unsigned
-        
+
     Returns:
         Decoded integer value
-        
+
     Raises:
         OverflowError: If value is outside valid range for the bits
     """
     if not 0 <= value < 2**bits:
         raise OverflowError(f"UInt{bits} overflow with value {value}")
-    
+
     if signed and value >= 2 ** (bits - 1):
         value = value - (2**bits)
-    
+
     # Validate the decoded value
     return validate_integer(value, bits, signed)
 
@@ -295,20 +295,16 @@ _decoders = {
     DataType.INT64: lambda val: decode_int(val, 64, signed=True),
     # Array decoders
     DataType.INT8_ARRAY: lambda val: [
-        validate_integer(v, 8, signed=True)
-        for v in decode_array(val, "b")
+        validate_integer(v, 8, signed=True) for v in decode_array(val, "b")
     ],
     DataType.INT16_ARRAY: lambda val: [
-        validate_integer(v, 16, signed=True)
-        for v in decode_array(val, "h")
+        validate_integer(v, 16, signed=True) for v in decode_array(val, "h")
     ],
     DataType.INT32_ARRAY: lambda val: [
-        validate_integer(v, 32, signed=True)
-        for v in decode_array(val, "i")
+        validate_integer(v, 32, signed=True) for v in decode_array(val, "i")
     ],
     DataType.INT64_ARRAY: lambda val: [
-        validate_integer(v, 64, signed=True)
-        for v in decode_array(val, "q")
+        validate_integer(v, 64, signed=True) for v in decode_array(val, "q")
     ],
     DataType.UINT8_ARRAY: lambda val: [
         validate_integer(v, 8) for v in decode_array(val, "B")
