@@ -250,8 +250,7 @@ _encoders = {
     DataType.FLOAT_ARRAY: lambda val: encode_array(val, "f"),
     DataType.DOUBLE_ARRAY: lambda val: encode_array(val, "d"),
     DataType.BOOLEAN_ARRAY: lambda val: bytes([1 if x else 0 for x in val]),
-    DataType.STRING_ARRAY: lambda val: b"\0".join(s.encode("utf-8") for s in val)
-    + b"\0",
+    DataType.STRING_ARRAY: lambda val: b"\0".join(s.encode("utf-8") for s in val),
     DataType.DATETIME_ARRAY: lambda val: encode_array(
         [int(v.timestamp() * 1000) for v in val], "Q"
     ),
@@ -334,9 +333,7 @@ _decoders = {
     DataType.FLOAT_ARRAY: lambda val: decode_array(val, "f"),
     DataType.DOUBLE_ARRAY: lambda val: decode_array(val, "d"),
     DataType.BOOLEAN_ARRAY: lambda val: [bool(b) for b in val],
-    DataType.STRING_ARRAY: lambda val: [
-        s.decode("utf-8") for s in val.split(b"\0") if s
-    ],
+    DataType.STRING_ARRAY: lambda val: [s.decode("utf-8") for s in val.split(b"\0")],
     DataType.DATETIME_ARRAY: lambda val: [
         datetime.datetime.fromtimestamp(v / 1000, datetime.timezone.utc)
         for v in decode_array(val, "Q")

@@ -62,9 +62,14 @@ class Metric:
             metric.is_historical = self.is_historical
         if self.is_transient:
             metric.is_transient = self.is_transient
-        if self.is_null or self.value is None:
+        if (
+            self.is_null
+            or self.value is None
+            or (isinstance(self.value, list) and len(self.value) == 0)
+        ):
             metric.is_null = True
         else:
+            metric.is_null = False
             # All array types use bytes_value in protobuf
             setattr(metric, self.datatype.field, self.datatype.encode(self.value))
         return metric
@@ -81,15 +86,22 @@ class Metric:
         """
         datatype = DataType(metric.datatype)
         value_field = metric.WhichOneof("value")
+
+        # If is_null is True, value should be None regardless of value_field
+        if metric.is_null:
+            value = None
+        # If is_null is False but no value field, that's an error
+        elif value_field is None:
+            raise ValueError("Metric has is_null=False but no value field")
+        # Otherwise decode the value
+        else:
+            value = datatype.decode(getattr(metric, value_field))
+
         return cls(
             timestamp=metric.timestamp if metric.HasField("timestamp") else None,
             name=metric.name if metric.HasField("name") else None,
             datatype=datatype,
-            value=(
-                datatype.decode(getattr(metric, value_field))
-                if value_field is not None
-                else None
-            ),
+            value=value,
             alias=metric.alias if metric.HasField("alias") else None,
             is_historical=metric.is_historical,
             is_transient=metric.is_transient,
