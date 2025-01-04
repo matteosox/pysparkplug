@@ -18,3 +18,4 @@ src/pysparkplug/_version.py
 
 # Coverage
 .coverage*
+coverage.xml

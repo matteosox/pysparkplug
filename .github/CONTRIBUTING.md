@@ -13,7 +13,7 @@ That should be all you need to install!
 
 _TL;DR: Run `just` to run the full suite of tests._
 
-Note: any of the following commands run with the pinned Python version in `.python-version`, but can be run with a custom version, e.g. `just python=3.13 test`.
+Note: any of the following commands run with the pinned Python version in `.python-version`, but can be run with a custom version, e.g. `UV_PYTHON=3.13 just test`.
 
 ### Code Formatting
 
@@ -122,7 +122,7 @@ This is the "main" job that runs on every commit to a branch with a pull request
 
 ### OS Compatibility
 
-Using Github Actions' [build matrix feature](https://docs.github.com/en/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix), we're able to run unit tests on MacOS, Windows, & Linux, for each supported version of Python. The coverage report from each of these is then uploaded to [Codecov](https://about.codecov.io/).
+Using Github Actions' [build matrix feature](https://docs.github.com/en/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix), we're able to run unit tests on MacOS, Windows, & Linux. The coverage report from each of these is then uploaded to [Codecov](https://about.codecov.io/).
 
 ## Pull Requests
 
