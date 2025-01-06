@@ -11,5 +11,4 @@ build:
     - asdf plugin add uv
     - asdf install uv latest
     - asdf global uv latest
-    - uv sync --locked
     - uv run sphinx-build -T -W -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html

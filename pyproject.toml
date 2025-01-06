@@ -37,6 +37,24 @@ Source = "https://github.com/matteosox/pysparkplug"
 "Bug Report" = "https://github.com/matteosox/pysparkplug/issues/new/choose"
 "Feature Request" = "https://github.com/matteosox/pysparkplug/issues/new/choose"
 
+[dependency-groups]
+dev = [
+    "check-wheel-contents>=0.6.1",
+    "coverage>=7.6.10",
+    "furo>=2024.8.6",
+    "myst-parser>=3.0.1",
+    "packaging>=24.2",
+    "pygithub>=2.5.0",
+    "pyright>=1.1.391",
+    "pytest>=8.3.4",
+    "ruff>=0.8.5",
+    "sphinx>=7.4.7",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-notfound-page>=1.0.4",
+    "sphinxext-opengraph>=0.9.1",
+    "twine>=6.0.1",
+]
+
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
@@ -47,24 +65,6 @@ raw-options = { local_scheme = "no-local-version" }
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/pysparkplug/_version.py"
-
-[tool.uv]
-dev-dependencies = [
-    "check-wheel-contents>=0.6.0",
-    "coverage>=7.6.4",
-    "furo>=2024.8.6",
-    "myst-parser>=3.0.1",
-    "packaging>=24.1",
-    "pygithub>=2.4.0",
-    "pyright>=1.1.385",
-    "pytest>=8.3.3",
-    "ruff>=0.7.0",
-    "sphinx>=7.4.7",
-    "sphinx-copybutton>=0.5.2",
-    "sphinx-notfound-page>=1.0.4",
-    "sphinxext-opengraph>=0.9.1",
-    "twine>=5.1.1",
-]
 
 [tool.ruff]
 extend-exclude = ["*_pb2.py"]
