@@ -1,7 +1,7 @@
 """Module of StrEnum backport, since it isn't packaged appropriately"""
 
 from enum import Enum
-from typing import Any, List, Type, TypeVar
+from typing import Any, TypeVar
 
 __all__ = ["StrEnum"]
 
@@ -13,7 +13,7 @@ class StrEnum(str, Enum):
     Enum where members are also (and must be) strings
     """
 
-    def __new__(cls: Type[_S], *values: str) -> _S:
+    def __new__(cls: type[_S], *values: str) -> _S:
         if len(values) > 3:
             raise TypeError(f"too many arguments for str(): {values}")
         if len(values) == 1:
@@ -37,7 +37,7 @@ class StrEnum(str, Enum):
 
     @staticmethod
     def _generate_next_value_(
-        name: str, start: int, count: int, last_values: List[Any]
+        name: str, start: int, count: int, last_values: list[Any]
     ) -> str:
         """
         Return the lower-cased version of the member name.

@@ -92,11 +92,16 @@ addopts = "-rA --verbose --color=yes"
 [tool.coverage.run]
 branch = true
 parallel = true
+omit = ["*_pb2.py"]
 source = ["pysparkplug"]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 54
+fail_under = 65
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+]
 
 [tool.check-wheel-contents]
 toplevel = "pysparkplug"

@@ -2,7 +2,7 @@
 
 import dataclasses
 import ssl
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 __all__ = [
     "ClientOptions",
@@ -89,7 +89,7 @@ class WSConfig:
 
     path: str = "/mqtt"
     headers: Optional[
-        Union[Dict[str, Any], Callable[[Dict[str, Any]], Dict[str, Any]]]
+        Union[dict[str, Any], Callable[[dict[str, Any]], dict[str, Any]]]
     ] = None
 
 

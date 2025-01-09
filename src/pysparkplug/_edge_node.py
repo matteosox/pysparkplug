@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import itertools
 import logging
-from typing import Callable, Dict, Iterable, Optional
+from typing import Callable, Iterable, Optional
 
 from pysparkplug._client import Client
 from pysparkplug._constants import (
@@ -54,8 +54,8 @@ class EdgeNode:
 
     group_id: str
     edge_node_id: str
-    _metrics: Dict[str, Metric]
-    _devices: Dict[str, Device]
+    _metrics: dict[str, Metric]
+    _devices: dict[str, Device]
     _client: Client
 
     _bd_seq_metric: Metric
@@ -355,12 +355,12 @@ class EdgeNode:
         self._client.unsubscribe(topic)
 
     @property
-    def metrics(self) -> Dict[str, Metric]:
+    def metrics(self) -> dict[str, Metric]:
         """Returns a copy of the metrics for this edge node in a dictionary"""
         return self._metrics.copy()
 
     @property
-    def devices(self) -> Dict[str, Device]:
+    def devices(self) -> dict[str, Device]:
         """Returns a copy of the devices for this edge node in a dictionary"""
         return self._devices.copy()
 
@@ -457,7 +457,7 @@ class Device:
     """
 
     device_id: str
-    _metrics: Dict[str, Metric]
+    _metrics: dict[str, Metric]
     cmd_callback: Callable[[EdgeNode, Message], None]
 
     def __init__(
@@ -484,7 +484,7 @@ class Device:
             self._metrics[metric.name] = metric
 
     @property
-    def metrics(self) -> Dict[str, Metric]:
+    def metrics(self) -> dict[str, Metric]:
         """Returns a copy of the metrics for this edge node in a dictionary"""
         return self._metrics.copy()
 

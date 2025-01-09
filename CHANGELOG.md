@@ -15,6 +15,7 @@ STRING_ARRAY, BOOLEAN_ARRAY, and DATETIME_ARRAY.
 - `DATETIME` datatypes are no longer all treated as UTC, instead properly converting
 them to the UTC timezone. Naive datetime objects are thus treated as the local
 timezone.
+- Unsupported datatypes now raise a `NotImplementedError` when attempting to encode/decode them instead of a `ValueError`.
 
 ## 0.4.0 (2024-10-24)
 

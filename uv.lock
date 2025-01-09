@@ -1087,7 +1087,7 @@ wheels = [
 
 [[package]]
 name = "pysparkplug"
-version = "0.4.1.dev9"
+version = "0.4.1.dev10"
 source = { editable = "." }
 dependencies = [
     { name = "paho-mqtt" },

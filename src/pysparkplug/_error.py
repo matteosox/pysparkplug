@@ -1,6 +1,6 @@
 """Module containing errors and functions to handle them"""
 
-from typing import Optional, Set
+from typing import Optional
 
 from pysparkplug._enums import ConnackCode, ErrorCode
 
@@ -12,7 +12,7 @@ class MQTTError(Exception):
 
 
 def check_error_code(
-    error_int: int, *, ignore_codes: Optional[Set[ErrorCode]] = None
+    error_int: int, *, ignore_codes: Optional[set[ErrorCode]] = None
 ) -> None:
     """Validate error code"""
     if error_int > 0:
@@ -22,7 +22,7 @@ def check_error_code(
 
 
 def check_connack_code(
-    connack_int: int, *, ignore_codes: Optional[Set[ConnackCode]] = None
+    connack_int: int, *, ignore_codes: Optional[set[ConnackCode]] = None
 ) -> None:
     """Validate connack code"""
     if connack_int > 0:

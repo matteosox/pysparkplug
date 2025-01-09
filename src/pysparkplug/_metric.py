@@ -65,7 +65,6 @@ class Metric:
         if self.is_null or self.value is None:
             metric.is_null = True
         else:
-            metric.is_null = False
             setattr(metric, self.datatype.field, self.datatype.encode(self.value))
         return metric
 
@@ -81,7 +80,6 @@ class Metric:
         """
         datatype = DataType(metric.datatype)
         value_field = metric.WhichOneof("value")
-
         return cls(
             timestamp=metric.timestamp if metric.HasField("timestamp") else None,
             name=metric.name if metric.HasField("name") else None,
