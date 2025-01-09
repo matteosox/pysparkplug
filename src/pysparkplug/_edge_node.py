@@ -188,7 +188,7 @@ class EdgeNode:
                 d_birth = DBirth(
                     timestamp=get_current_timestamp(),
                     seq=self._seq,
-                    metrics=device.metrics.values(),
+                    metrics=tuple(device.metrics.values()),
                 )
                 client.publish(
                     Message(
@@ -265,7 +265,7 @@ class EdgeNode:
             d_birth = DBirth(
                 timestamp=get_current_timestamp(),
                 seq=self._seq,
-                metrics=device.metrics.values(),
+                metrics=tuple(device.metrics.values()),
             )
             self._client.publish(
                 Message(
@@ -395,7 +395,7 @@ class EdgeNode:
             edge_node_id=self.edge_node_id,
         )
         n_data = NData(
-            timestamp=get_current_timestamp(), seq=self._seq, metrics=metrics
+            timestamp=get_current_timestamp(), seq=self._seq, metrics=tuple(metrics)
         )
         self._client.publish(
             Message(topic=topic, payload=n_data, qos=QoS.AT_MOST_ONCE, retain=False),
@@ -425,7 +425,7 @@ class EdgeNode:
             edge_node_id=self.edge_node_id,
             device_id=device_id,
         )
-        d_data = DData(get_current_timestamp(), seq=self._seq, metrics=metrics)
+        d_data = DData(get_current_timestamp(), seq=self._seq, metrics=tuple(metrics))
         self._client.publish(
             Message(
                 topic=d_data_topic, payload=d_data, qos=QoS.AT_MOST_ONCE, retain=False

@@ -3,7 +3,7 @@
 import datetime
 import enum
 import struct
-from typing import Any, List, Union
+from typing import Sequence, Union
 
 from pysparkplug._types import MetricValue
 
@@ -29,14 +29,12 @@ class DataType(enum.IntEnum):
     DATETIME = 13
     TEXT = 14
     UUID = 15
-    DATASET = 16
+    DATASET = 16  # unsupported
     BYTES = 17
     FILE = 18
-    TEMPLATE = 19
-    PROPERTYSET = 20
-    PROPERTYSETLIST = 21
-
-    # Array Types - values starting at 22 per Sparkplug B spec
+    TEMPLATE = 19  # unsupported
+    PROPERTYSET = 20  # unsupported
+    PROPERTYSETLIST = 21  # unsupported
     INT8_ARRAY = 22
     INT16_ARRAY = 23
     INT32_ARRAY = 24
@@ -57,14 +55,14 @@ class DataType(enum.IntEnum):
         try:
             return _fields[self]
         except KeyError as exc:
-            raise ValueError(f"{self} has no field name") from exc
+            raise NotImplementedError(f"{self.name} not implemented") from exc
 
     def encode(self, value: MetricValue) -> Union[int, float, bool, str, bytes]:
         """Encode a value into the form it should take in a Sparkplug B Protobuf object"""
         try:
             encoder = _encoders[self]
         except KeyError as exc:
-            raise ValueError(f"{self} cannot be encoded") from exc
+            raise NotImplementedError(f"{self.name} not implemented") from exc
         return encoder(value)
 
     def decode(self, value: Union[int, float, bool, str, bytes]) -> MetricValue:
@@ -72,7 +70,7 @@ class DataType(enum.IntEnum):
         try:
             decoder = _decoders[self]
         except KeyError as exc:
-            raise ValueError(f"{self} cannot be decoded") from exc
+            raise NotImplementedError(f"{self.name} not implemented") from exc
         return decoder(value)
 
 
@@ -110,154 +108,46 @@ _fields = {
 }
 
 
-def encode_array(values: List[Any], format_char: str) -> bytes:
+def _uint_coder(value: int, bits: int) -> int:
+    if not 0 <= value < 2**bits:
+        raise OverflowError(f"UInt{bits} overflow with value {value}")
+    return value
+
+
+def _int_encoder(value: int, bits: int) -> int:
+    max_val: int = 2 ** (bits - 1)
+    if not -max_val <= value < max_val:
+        raise OverflowError(f"Int{bits} overflow with value {value}")
+    return value + (max_val * 2 if value < 0 else 0)
+
+
+def _int_decoder(value: int, bits: int) -> int:
+    max_val: int = 2**bits
+    if not 0 <= value < max_val:
+        raise OverflowError(f"Int{bits} overflow with value {value}")
+    return value - (max_val if value >= 2 ** (bits - 1) else 0)
+
+
+def _encode_numeric_array(values: Sequence[float], format_char: str) -> bytes:
     """Convert array to bytes using specified format
 
     Args:
-        values: List of values to encode
+        values: list of values to encode
         format_char: Format character for struct.pack:
             'b' = int8, 'B' = uint8
             'h' = int16, 'H' = uint16
             'i' = int32, 'I' = uint32
             'q' = int64, 'Q' = uint64
-            'f' = float
-            'd' = double
+            'f' = float, 'd' = double
     """
     format_str = f"<{len(values)}{format_char}"  # '<' for little endian
     try:
         return struct.pack(format_str, *values)
-    except struct.error as e:
-        raise ValueError(
-            f"Failed to encode array values {values} with format {format_char}: {e}"
-        )
+    except struct.error as exc:
+        raise ValueError(f"Failed to encode array with format {format_char}") from exc
 
 
-def validate_integer(value: int, bits: int, signed: bool = False) -> int:
-    """Validate integer values are within their bit range and return the value if valid.
-
-    Args:
-        value: Integer value to validate
-        bits: Number of bits for the integer type
-        signed: If True, treat as signed int, otherwise as unsigned int
-
-    Returns:
-        The validated integer value
-
-    Raises:
-        TypeError: If value is not an integer
-        OverflowError: If value is outside valid range for the specified bits
-    """
-    if not isinstance(value, int):
-        raise TypeError(f"Expected int, got {type(value)}")
-
-    if signed:
-        max_val = 2 ** (bits - 1)
-        if not -max_val <= value < max_val:
-            raise OverflowError(f"Int{bits} overflow with value {value}")
-    elif not 0 <= value < 2**bits:
-        raise OverflowError(f"UInt{bits} overflow with value {value}")
-    return value
-
-
-def encode_int(value: int, bits: int, signed: bool = False) -> int:
-    """Encode integer value to unsigned representation
-
-    Args:
-        value: Integer value to encode
-        bits: Number of bits (8, 16, 32, or 64)
-        signed: If True, treat as signed int, otherwise as unsigned
-
-    Returns:
-        Encoded unsigned integer value
-    """
-    validate_integer(value, bits, signed)
-    if signed and value < 0:
-        return value + (2**bits)
-    return value
-
-
-def decode_int(value: int, bits: int, signed: bool = False) -> int:
-    """Decode unsigned representation back to integer value
-
-    Args:
-        value: Unsigned integer value to decode
-        bits: Number of bits (8, 16, 32, or 64)
-        signed: If True, treat as signed int, otherwise as unsigned
-
-    Returns:
-        Decoded integer value
-
-    Raises:
-        OverflowError: If value is outside valid range for the bits
-    """
-    if not 0 <= value < 2**bits:
-        raise OverflowError(f"UInt{bits} overflow with value {value}")
-
-    if signed and value >= 2 ** (bits - 1):
-        value = value - (2**bits)
-
-    # Validate the decoded value
-    return validate_integer(value, bits, signed)
-
-
-_encoders = {
-    # Unsigned integers
-    DataType.UINT8: lambda val: encode_int(val, 8),
-    DataType.UINT16: lambda val: encode_int(val, 16),
-    DataType.UINT32: lambda val: encode_int(val, 32),
-    DataType.UINT64: lambda val: encode_int(val, 64),
-    # Signed integers
-    DataType.INT8: lambda val: encode_int(val, 8, signed=True),
-    DataType.INT16: lambda val: encode_int(val, 16, signed=True),
-    DataType.INT32: lambda val: encode_int(val, 32, signed=True),
-    DataType.INT64: lambda val: encode_int(val, 64, signed=True),
-    # Array encoders
-    DataType.INT8_ARRAY: lambda val: encode_array(
-        [validate_integer(v, 8, signed=True) for v in val], "b"
-    ),
-    DataType.INT16_ARRAY: lambda val: encode_array(
-        [validate_integer(v, 16, signed=True) for v in val], "h"
-    ),
-    DataType.INT32_ARRAY: lambda val: encode_array(
-        [validate_integer(v, 32, signed=True) for v in val], "i"
-    ),
-    DataType.INT64_ARRAY: lambda val: encode_array(
-        [validate_integer(v, 64, signed=True) for v in val], "q"
-    ),
-    DataType.UINT8_ARRAY: lambda val: encode_array(
-        [validate_integer(v, 8) for v in val], "B"
-    ),
-    DataType.UINT16_ARRAY: lambda val: encode_array(
-        [validate_integer(v, 16) for v in val], "H"
-    ),
-    DataType.UINT32_ARRAY: lambda val: encode_array(
-        [validate_integer(v, 32) for v in val], "I"
-    ),
-    DataType.UINT64_ARRAY: lambda val: encode_array(
-        [validate_integer(v, 64) for v in val], "Q"
-    ),
-    # Other types (unchanged)
-    DataType.FLOAT: lambda val: val,
-    DataType.DOUBLE: lambda val: val,
-    DataType.BOOLEAN: lambda val: val,
-    DataType.STRING: lambda val: val,
-    DataType.DATETIME: lambda val: int(val.timestamp() * 1000),
-    DataType.TEXT: lambda val: val,
-    DataType.UUID: lambda val: val,
-    DataType.BYTES: lambda val: val,
-    DataType.FILE: lambda val: val,
-    # Other arrays
-    DataType.FLOAT_ARRAY: lambda val: encode_array(val, "f"),
-    DataType.DOUBLE_ARRAY: lambda val: encode_array(val, "d"),
-    DataType.BOOLEAN_ARRAY: lambda val: bytes([1 if x else 0 for x in val]),
-    DataType.STRING_ARRAY: lambda val: b"\0".join(s.encode("utf-8") for s in val),
-    DataType.DATETIME_ARRAY: lambda val: encode_array(
-        [int(v.timestamp() * 1000) for v in val], "Q"
-    ),
-}
-
-
-def decode_array(data: bytes, format_char: str) -> List[Any]:
+def _decode_numeric_array(data: bytes, format_char: str) -> tuple[float, ...]:
     """Convert bytes back to array using specified format
 
     Args:
@@ -267,57 +157,95 @@ def decode_array(data: bytes, format_char: str) -> List[Any]:
             'h' = int16, 'H' = uint16
             'i' = int32, 'I' = uint32
             'q' = int64, 'Q' = uint64
-            'f' = float
-            'd' = double
+            'f' = float, 'd' = double
     """
     size = struct.calcsize(format_char)
     count = len(data) // size
-    format_str = f"={count}{format_char}"  # '=' for system endianess
+    format_str = f"<{count}{format_char}"  # '<' for little endian
     try:
-        return list(struct.unpack(format_str, data))
-    except struct.error as e:
-        raise ValueError(
-            f"Failed to decode bytes {data} with format {format_char}: {e}"
-        )
+        return tuple(struct.unpack(format_str, data))
+    except struct.error as exc:
+        raise ValueError(f"Failed to decode array with format {format_char}") from exc
 
+
+def _encode_boolean_array(bools: tuple[bool, ...]) -> bytes:
+    num_bits = len(bools)
+    num_bytes = (num_bits + 7) // 8
+
+    # 4-byte integer that represents the total number of boolean values
+    first_byte = num_bits.to_bytes(4, "little")
+
+    # Form bitstring, right zero pad for the number of bytes
+    bitstring = "".join("1" if byte else "0" for byte in bools) + "0" * (
+        num_bytes * 8 - num_bits
+    )
+
+    # Convert to an integer, handling empty tuple = 0 safely
+    int_value = int(bitstring, 2) if bitstring else 0
+
+    # Prepend the first byte with the integer converted to bytes
+    return first_byte + int_value.to_bytes(num_bytes, byteorder="big")
+
+
+def _decode_boolean_array(data: bytes) -> tuple[bool, ...]:
+    num_bits = int.from_bytes(data[:4], "little")
+    masks = tuple(1 << ind for ind in range(8))[::-1]
+    return tuple(bool(byte & mask) for byte in data[4:] for mask in masks)[:num_bits]
+
+
+_encoders = {
+    # Unsigned integers
+    DataType.UINT8: lambda val: _uint_coder(val, 8),
+    DataType.UINT16: lambda val: _uint_coder(val, 16),
+    DataType.UINT32: lambda val: _uint_coder(val, 32),
+    DataType.UINT64: lambda val: _uint_coder(val, 64),
+    # Signed integers
+    DataType.INT8: lambda val: _int_encoder(val, 8),
+    DataType.INT16: lambda val: _int_encoder(val, 16),
+    DataType.INT32: lambda val: _int_encoder(val, 32),
+    DataType.INT64: lambda val: _int_encoder(val, 64),
+    # Other scalar types
+    DataType.FLOAT: lambda val: val,
+    DataType.DOUBLE: lambda val: val,
+    DataType.BOOLEAN: lambda val: val,
+    DataType.STRING: lambda val: val,
+    DataType.DATETIME: lambda val: int(val.timestamp() * 1000),
+    DataType.TEXT: lambda val: val,
+    DataType.UUID: lambda val: val,
+    DataType.BYTES: lambda val: val,
+    DataType.FILE: lambda val: val,
+    # Numeric arrays
+    DataType.INT8_ARRAY: lambda val: _encode_numeric_array(val, "b"),
+    DataType.INT16_ARRAY: lambda val: _encode_numeric_array(val, "h"),
+    DataType.INT32_ARRAY: lambda val: _encode_numeric_array(val, "i"),
+    DataType.INT64_ARRAY: lambda val: _encode_numeric_array(val, "q"),
+    DataType.UINT8_ARRAY: lambda val: _encode_numeric_array(val, "B"),
+    DataType.UINT16_ARRAY: lambda val: _encode_numeric_array(val, "H"),
+    DataType.UINT32_ARRAY: lambda val: _encode_numeric_array(val, "I"),
+    DataType.UINT64_ARRAY: lambda val: _encode_numeric_array(val, "Q"),
+    DataType.FLOAT_ARRAY: lambda val: _encode_numeric_array(val, "f"),
+    DataType.DOUBLE_ARRAY: lambda val: _encode_numeric_array(val, "d"),
+    # Other arrays
+    DataType.BOOLEAN_ARRAY: _encode_boolean_array,
+    DataType.STRING_ARRAY: lambda val: b"\0".join(s.encode("utf-8") for s in val)
+    + b"\0",
+    DataType.DATETIME_ARRAY: lambda val: _encode_numeric_array(
+        tuple(int(v.timestamp() * 1000) for v in val), "Q"
+    ),
+}
 
 _decoders = {
     # Unsigned integers
-    DataType.UINT8: lambda val: decode_int(val, 8),
-    DataType.UINT16: lambda val: decode_int(val, 16),
-    DataType.UINT32: lambda val: decode_int(val, 32),
-    DataType.UINT64: lambda val: decode_int(val, 64),
+    DataType.UINT8: lambda val: _uint_coder(val, 8),
+    DataType.UINT16: lambda val: _uint_coder(val, 16),
+    DataType.UINT32: lambda val: _uint_coder(val, 32),
+    DataType.UINT64: lambda val: _uint_coder(val, 64),
     # Signed integers
-    DataType.INT8: lambda val: decode_int(val, 8, signed=True),
-    DataType.INT16: lambda val: decode_int(val, 16, signed=True),
-    DataType.INT32: lambda val: decode_int(val, 32, signed=True),
-    DataType.INT64: lambda val: decode_int(val, 64, signed=True),
-    # Array decoders
-    DataType.INT8_ARRAY: lambda val: [
-        validate_integer(v, 8, signed=True) for v in decode_array(val, "b")
-    ],
-    DataType.INT16_ARRAY: lambda val: [
-        validate_integer(v, 16, signed=True) for v in decode_array(val, "h")
-    ],
-    DataType.INT32_ARRAY: lambda val: [
-        validate_integer(v, 32, signed=True) for v in decode_array(val, "i")
-    ],
-    DataType.INT64_ARRAY: lambda val: [
-        validate_integer(v, 64, signed=True) for v in decode_array(val, "q")
-    ],
-    DataType.UINT8_ARRAY: lambda val: [
-        validate_integer(v, 8) for v in decode_array(val, "B")
-    ],
-    DataType.UINT16_ARRAY: lambda val: [
-        validate_integer(v, 16) for v in decode_array(val, "H")
-    ],
-    DataType.UINT32_ARRAY: lambda val: [
-        validate_integer(v, 32) for v in decode_array(val, "I")
-    ],
-    DataType.UINT64_ARRAY: lambda val: [
-        validate_integer(v, 64) for v in decode_array(val, "Q")
-    ],
-    # Non-integer types (unchanged)
+    DataType.INT8: lambda val: _int_decoder(val, 8),
+    DataType.INT16: lambda val: _int_decoder(val, 16),
+    DataType.INT32: lambda val: _int_decoder(val, 32),
+    DataType.INT64: lambda val: _int_decoder(val, 64),
+    # Other scalar types
     DataType.FLOAT: lambda val: val,
     DataType.DOUBLE: lambda val: val,
     DataType.BOOLEAN: lambda val: val,
@@ -329,13 +257,24 @@ _decoders = {
     DataType.UUID: lambda val: val,
     DataType.BYTES: lambda val: val,
     DataType.FILE: lambda val: val,
+    # Numeric array
+    DataType.INT8_ARRAY: lambda val: _decode_numeric_array(val, "b"),
+    DataType.INT16_ARRAY: lambda val: _decode_numeric_array(val, "h"),
+    DataType.INT32_ARRAY: lambda val: _decode_numeric_array(val, "i"),
+    DataType.INT64_ARRAY: lambda val: _decode_numeric_array(val, "q"),
+    DataType.UINT8_ARRAY: lambda val: _decode_numeric_array(val, "B"),
+    DataType.UINT16_ARRAY: lambda val: _decode_numeric_array(val, "H"),
+    DataType.UINT32_ARRAY: lambda val: _decode_numeric_array(val, "I"),
+    DataType.UINT64_ARRAY: lambda val: _decode_numeric_array(val, "Q"),
+    DataType.FLOAT_ARRAY: lambda val: _decode_numeric_array(val, "f"),
+    DataType.DOUBLE_ARRAY: lambda val: _decode_numeric_array(val, "d"),
     # Other arrays
-    DataType.FLOAT_ARRAY: lambda val: decode_array(val, "f"),
-    DataType.DOUBLE_ARRAY: lambda val: decode_array(val, "d"),
-    DataType.BOOLEAN_ARRAY: lambda val: [bool(b) for b in val],
-    DataType.STRING_ARRAY: lambda val: [s.decode("utf-8") for s in val.split(b"\0")],
-    DataType.DATETIME_ARRAY: lambda val: [
+    DataType.BOOLEAN_ARRAY: _decode_boolean_array,
+    DataType.STRING_ARRAY: lambda val: tuple(
+        s.decode("utf-8") for s in val.split(b"\0")[:-1]
+    ),
+    DataType.DATETIME_ARRAY: lambda val: tuple(
         datetime.datetime.fromtimestamp(v / 1000, datetime.timezone.utc)
-        for v in decode_array(val, "Q")
-    ],
+        for v in _decode_numeric_array(val, "Q")
+    ),
 }

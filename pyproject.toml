@@ -43,10 +43,12 @@ dev = [
     "coverage>=7.6.10",
     "furo>=2024.8.6",
     "myst-parser>=3.0.1",
+    "numpy>=2.0.2",
     "packaging>=24.2",
     "pygithub>=2.5.0",
     "pyright>=1.1.391",
     "pytest>=8.3.4",
+    "pytest-subtests>=0.14.1",
     "ruff>=0.8.5",
     "sphinx>=7.4.7",
     "sphinx-copybutton>=0.5.2",
@@ -85,7 +87,7 @@ reportUnnecessaryTypeIgnoreComment = true
 reportMissingParameterType = true
 
 [tool.pytest.ini_options]
-addopts = "-ra --verbose --color=yes"
+addopts = "-rA --verbose --color=yes"
 
 [tool.coverage.run]
 branch = true

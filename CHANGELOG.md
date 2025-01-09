@@ -3,6 +3,19 @@
 All notable changes for `pysparkplug` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Changelog](http://keepachangelog.com/).
 
+## 0.5.0 (2025-01-09)
+
+### Added
+- Support for array datatypes, i.e. INT8_ARRAY, INT16_ARRAY, INT32_ARRAY, INT64_ARRAY,
+UINT8_ARRAY, UINT16_ARRAY, UINT32_ARRAY, UINT64_ARRAY, FLOAT_ARRAY, DOUBLE_ARRAY,
+STRING_ARRAY, BOOLEAN_ARRAY, and DATETIME_ARRAY.
+
+### Changed
+- Payload `metrics` attribute is now type annotated and implemented as a `tuple`.
+- `DATETIME` datatypes are no longer all treated as UTC, instead properly converting
+them to the UTC timezone. Naive datetime objects are thus treated as the local
+timezone.
+
 ## 0.4.0 (2024-10-24)
 
 ### Added

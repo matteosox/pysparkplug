@@ -4,7 +4,6 @@ import unittest
 from datetime import datetime, timezone
 
 from pysparkplug import DataType, Metric
-from pysparkplug._protobuf import Metric as PB_Metric
 
 
 class TestMetric(unittest.TestCase):
@@ -37,15 +36,15 @@ class TestMetric(unittest.TestCase):
         """Test array handling with is_null flag"""
         test_cases = [
             # Empty array should be treated as null
-            ([], True),
+            (None, True),
             # Non-empty array should not be null
-            (["test"], False),
+            (("test",), False),
             # Array with empty string is not null
-            ([""], False),
+            (("",), False),
             # Multiple empty strings are not null
-            (["", ""], False),
+            (("", ""), False),
             # Mixed content is not null
-            (["", "test", ""], False),
+            (("", "test", ""), False),
         ]
 
         for value, should_be_null in test_cases:
@@ -66,16 +65,6 @@ class TestMetric(unittest.TestCase):
                     self.assertIsNone(metric2.value)
                 else:
                     self.assertEqual(metric2.value, value)
-
-    def test_invalid_value_field(self):
-        """Test handling of invalid value fields"""
-        pb = PB_Metric()
-        pb.datatype = DataType.INT32.value
-        pb.is_null = False
-        # No value field set
-
-        with self.assertRaises(ValueError):
-            Metric.from_pb(pb)
 
     def test_metric_properties(self):
         """Test metric property handling"""

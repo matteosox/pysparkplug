@@ -2,7 +2,7 @@
 
 import datetime
 import sys
-from typing import List, Union
+from typing import Union
 
 if sys.version_info < (3, 11):
     from typing_extensions import Self, TypeAlias
@@ -20,10 +20,10 @@ MetricValue: TypeAlias = Union[
     bytes,
     datetime.datetime,
     # Array types
-    List[int],
-    List[float],
-    List[bool],
-    List[str],
-    List[datetime.datetime],
+    tuple[int, ...],
+    tuple[float, ...],
+    tuple[bool, ...],
+    tuple[str, ...],
+    tuple[datetime.datetime, ...],
 ]
 """Type annotation for the types a `Metric`'s `value` attribute can take"""

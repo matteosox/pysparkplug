@@ -5,8 +5,7 @@ from __future__ import annotations
 import dataclasses
 import json
 from abc import abstractmethod
-from collections.abc import Iterable
-from typing import Dict, Optional, Protocol, cast, runtime_checkable
+from typing import Optional, Protocol, cast, runtime_checkable
 
 from pysparkplug import _protobuf as protobuf
 from pysparkplug._datatype import DataType
@@ -129,29 +128,25 @@ class Birth(_PBPayload):
 
     timestamp: int
     seq: int
-    metrics: Iterable[Metric]
-    _names_mapping: Dict[int, str] = dataclasses.field(
+    metrics: tuple[Metric, ...]
+    _names_mapping: dict[int, str] = dataclasses.field(
         init=False, default_factory=dict, repr=False
     )
-    _dtypes_mapping: Dict[str, DataType] = dataclasses.field(
+    _dtypes_mapping: dict[str, DataType] = dataclasses.field(
         init=False, default_factory=dict, repr=False
     )
 
     def __post_init__(self) -> None:
         """Validates payload"""
-        if not isinstance(self.timestamp, int):
-            raise TypeError("timestamp must be an integer")
-        if not isinstance(self.seq, int):
-            raise TypeError("seq must be an integer")
-        if not isinstance(self.metrics, (list, tuple)):
-            raise TypeError("metrics must be a list or tuple")
         for metric in self.metrics:
-            if not isinstance(metric, Metric):
-                raise TypeError("metrics must be a list of Metric")
-            if metric.datatype == DataType.UNKNOWN:
-                raise ValueError("metric datatype cannot be UNKNOWN")
             if metric.name is None:
-                raise TypeError("metric name cannot be None")
+                raise ValueError(
+                    f"Metric {metric} must have a defined name when provided to a Birth payload"
+                )
+            if metric.datatype == DataType.UNKNOWN:
+                raise ValueError(
+                    f"Metric {metric} must have a defined datatype when provided to a Birth payload"
+                )
             if metric.alias is not None:
                 self._names_mapping[metric.alias] = metric.name
             self._dtypes_mapping[metric.name] = metric.datatype
@@ -240,7 +235,7 @@ class DBirth(Birth):
 class _Data(_PBPayload):
     timestamp: int
     seq: int
-    metrics: Iterable[Metric]
+    metrics: tuple[Metric, ...]
 
 
 class NData(_Data):
@@ -272,7 +267,7 @@ class DData(_Data):
 @dataclasses.dataclass(frozen=True)
 class _Cmd(_PBPayload):
     timestamp: int
-    metrics: Iterable[Metric]
+    metrics: tuple[Metric, ...]
 
 
 class NCmd(_Cmd):
