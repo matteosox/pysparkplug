@@ -766,10 +766,7 @@ class TestArrayTypes(unittest.TestCase):
         )
         for array, description in test_cases:
             with self.subTest(case=description):
-                encoded = DataType.BOOLEAN_ARRAY.encode(array)
-                print(encoded)
                 decoded = encode_decode(array, DataType.BOOLEAN_ARRAY)
-
                 self.assertEqual(len(decoded), len(array))
                 self.assertEqual(decoded, array)
 
