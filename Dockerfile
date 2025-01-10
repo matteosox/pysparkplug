@@ -1,5 +1,5 @@
 # Start from a core stack version
-FROM jupyter/scipy-notebook:2024-10-21
+FROM quay.io/jupyter/scipy-notebook:2025-01-06
 
 # Move to directory where repo will be mounted in home directory
 WORKDIR /home/jovyan/pysparkplug

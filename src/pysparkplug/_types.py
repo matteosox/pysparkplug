@@ -11,5 +11,19 @@ else:
 
 __all__ = ["MetricValue", "Self", "TypeAlias"]
 
-MetricValue: TypeAlias = Union[int, float, bool, str, bytes, datetime.datetime]
+MetricValue: TypeAlias = Union[
+    # Scalar types
+    int,
+    float,
+    bool,
+    str,
+    bytes,
+    datetime.datetime,
+    # Array types
+    tuple[int, ...],
+    tuple[float, ...],
+    tuple[bool, ...],
+    tuple[str, ...],
+    tuple[datetime.datetime, ...],
+]
 """Type annotation for the types a `Metric`'s `value` attribute can take"""

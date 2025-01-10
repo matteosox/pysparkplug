@@ -1,7 +1,7 @@
 """Module containing the low-level Sparkplug B client"""
 
 import logging
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Union
 
 from paho.mqtt import client as paho_mqtt
 
@@ -43,8 +43,8 @@ class Client:
     """
 
     _client: paho_mqtt.Client
-    _subscriptions: Dict[Topic, QoS]
-    _births: Dict[Tuple[Optional[str], Optional[str], Optional[str]], Birth]
+    _subscriptions: dict[Topic, QoS]
+    _births: dict[tuple[Optional[str], Optional[str], Optional[str]], Birth]
 
     def __init__(
         self,
@@ -145,8 +145,8 @@ class Client:
 
         def cb(
             _client: paho_mqtt.Client,
-            _userdata: Dict[Any, Any],
-            _flags: Dict[Any, Any],
+            _userdata: dict[Any, Any],
+            _flags: dict[Any, Any],
             rc: int,
         ) -> None:
             self._on_connect(rc)
@@ -219,7 +219,7 @@ class Client:
 
         def cb(
             _client: paho_mqtt.Client,
-            _userdata: Dict[Any, Any],
+            _userdata: dict[Any, Any],
             mqtt_message: paho_mqtt.MQTTMessage,
         ) -> None:
             message = self._handle_message(mqtt_message)

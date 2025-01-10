@@ -20,10 +20,10 @@ $ pip install pysparkplug
 
 ### Usage
 
-More documentation to come later, but for now, you can find some example usage notebooks in the `notebooks` directory.
+Simple demos of the `EdgeNode`, `Device`, and `Client` classes publishing and subscribing all supported payloads and metric datatypes can be found in the `notebooks` directory. To run them dynamically, you'll need to install Docker and run `just notebooks` before opening up your local browser to http://localhost:8888. The password is `bokchoy`.
 
 ## Features
 
 ### Fully type annotated
 
-`pysparkplug`'s various interfaces are fully type annotated, passing [Mypy](https://mypy.readthedocs.io/en/stable/)'s static type checker.
+`pysparkplug`'s various interfaces are fully type annotated.
