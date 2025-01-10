@@ -51,3 +51,7 @@ draft:
 
 publish: packaging
     uv publish --publish-url {{publish-url}}
+
+notebooks:
+    -docker compose up
+    docker compose down

@@ -29,12 +29,12 @@ class DataType(enum.IntEnum):
     DATETIME = 13
     TEXT = 14
     UUID = 15
-    DATASET = 16  # unsupported
+    DATASET = 16  #: Unsupported
     BYTES = 17
     FILE = 18
-    TEMPLATE = 19  # unsupported
-    PROPERTYSET = 20  # unsupported
-    PROPERTYSETLIST = 21  # unsupported
+    TEMPLATE = 19  #: Unsupported
+    PROPERTYSET = 20  #: Unsupported
+    PROPERTYSETLIST = 21  #: Unsupported
     INT8_ARRAY = 22
     INT16_ARRAY = 23
     INT32_ARRAY = 24

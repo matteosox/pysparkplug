@@ -1,6 +1,6 @@
 services:
   emqx:
-    image: emqx/emqx:5.0.9
+    image: emqx/emqx:5.8.4
     ports:
       - "18083:18083"  # Dashboard
     environment:
@@ -8,7 +8,6 @@ services:
   notebook:
     build:
       context: .
-      dockerfile: notebook.Dockerfile
     command:
       - "start.sh"
       - "jupyter"
