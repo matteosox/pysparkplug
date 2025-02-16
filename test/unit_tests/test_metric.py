@@ -3,7 +3,7 @@
 import unittest
 from datetime import datetime, timezone
 
-from pysparkplug import DataType, Metric
+from pysparkplug import DataType, Metric, Metadata
 
 
 class TestMetric(unittest.TestCase):
@@ -101,3 +101,95 @@ class TestMetric(unittest.TestCase):
         pb = metric.to_pb(include_dtype=True)
         metric2 = Metric.from_pb(pb)
         self.assertEqual(metric2.timestamp, metric.timestamp)
+
+    def test_metric_with_metadata(self):
+        """Test metric creation with metadata and conversion"""
+        metadata = Metadata(
+            is_multipart=True,
+            sequence_number=123,
+        )
+        metric = Metric(
+            timestamp=1234567890,
+            name="test_metric",
+            datatype=DataType.INT32,
+            value=42,
+            metadata=metadata,
+        )
+
+        # Convert to protobuf
+        pb = metric.to_pb(include_dtype=True)
+        self.assertEqual(pb.timestamp, 1234567890)
+        self.assertEqual(pb.name, "test_metric")
+        self.assertEqual(pb.int_value, 42)
+        self.assertFalse(pb.is_null)
+        self.assertTrue(pb.metadata.is_multi_part)
+        self.assertEqual(pb.metadata.seq, 123)
+
+        # Convert back
+        metric2 = Metric.from_pb(pb)
+        self.assertEqual(metric2.timestamp, 1234567890)
+        self.assertEqual(metric2.name, "test_metric")
+        self.assertEqual(metric2.value, 42)
+        self.assertFalse(metric2.is_null)
+        self.assertIsNotNone(metric2.metadata)
+        self.assertTrue(metric2.metadata.is_multipart)
+        self.assertEqual(metric2.metadata.sequence_number, 123)
+
+    def test_metric_with_null_metadata(self):
+        """Test metric creation with null metadata and conversion"""
+        metric = Metric(
+            timestamp=1234567890,
+            name="test_metric",
+            datatype=DataType.INT32,
+            value=42,
+            metadata=None,
+        )
+
+        # Convert to protobuf
+        pb = metric.to_pb(include_dtype=True)
+        self.assertEqual(pb.timestamp, 1234567890)
+        self.assertEqual(pb.name, "test_metric")
+        self.assertEqual(pb.int_value, 42)
+        self.assertFalse(pb.is_null)
+        self.assertFalse(pb.HasField("metadata"))  # Ensure metadata is not set
+
+        # Convert back
+        metric2 = Metric.from_pb(pb)
+        self.assertEqual(metric2.timestamp, 1234567890)
+        self.assertEqual(metric2.name, "test_metric")
+        self.assertEqual(metric2.value, 42)
+        self.assertFalse(metric2.is_null)
+        self.assertIsNone(metric2.metadata)  # Ensure metadata is None
+
+    def test_metric_with_partial_metadata(self):
+        """Test metric creation with partial metadata (only is_multipart)"""
+        metadata = Metadata(
+            is_multipart=True,
+            sequence_number=None,
+        )
+        metric = Metric(
+            timestamp=1234567890,
+            name="test_metric",
+            datatype=DataType.INT32,
+            value=42,
+            metadata=metadata,
+        )
+
+        # Convert to protobuf
+        pb = metric.to_pb(include_dtype=True)
+        self.assertEqual(pb.timestamp, 1234567890)
+        self.assertEqual(pb.name, "test_metric")
+        self.assertEqual(pb.int_value, 42)
+        self.assertFalse(pb.is_null)
+        self.assertTrue(pb.metadata.is_multi_part)
+        self.assertFalse(pb.metadata.HasField("seq"))  # Ensure sequence_number is not set
+
+        # Convert back
+        metric2 = Metric.from_pb(pb)
+        self.assertEqual(metric2.timestamp, 1234567890)
+        self.assertEqual(metric2.name, "test_metric")
+        self.assertEqual(metric2.value, 42)
+        self.assertFalse(metric2.is_null)
+        self.assertIsNotNone(metric2.metadata)
+        self.assertTrue(metric2.metadata.is_multipart)
+        self.assertIsNone(metric2.metadata.sequence_number)  # Ensure sequence_number is None
