@@ -1,9 +1,4 @@
 export UV_PYTHON := env("UV_PYTHON", `cat .python-version`)
-# `uv` pins the version in the `uv.lock` file, but this leads to churn with each commit when using
-# `hatch-vcs`. We'll leave this unlocked in CI until [1] is resolved.
-#
-# 1: https://github.com/astral-sh/uv/issues/7533
-# export UV_LOCKED := "true"
 repository := "pypi"
 publish-url := if repository == "pypi" {
   "https://upload.pypi.org/legacy/"
@@ -42,7 +37,7 @@ docs:
     uv run sphinx-build -T -W -E --keep-going --color -b doctest docs docs/build/doctest
 
 packaging:
-    uv build
+    uv build --no-sources
     uv run check-wheel-contents dist
     uv run twine check dist/*
 

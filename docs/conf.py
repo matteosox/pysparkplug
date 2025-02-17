@@ -55,6 +55,7 @@ nitpick_ignore = [
     ("py:class", "pysparkplug._payload.Payload"),
     ("py:class", "pysparkplug._strenum.StrEnum"),
     ("py:class", "sparkplug_b_pb2.Metric"),
+    ("py:class", "sparkplug_b_pb2.MetaData"),
     ("py:class", "ssl._SSLMethod"),
 ]
 

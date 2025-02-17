@@ -4,6 +4,7 @@ import dataclasses
 from typing import Optional
 
 from pysparkplug._datatype import DataType
+from pysparkplug._metadata import Metadata
 from pysparkplug._protobuf import Metric as PB_Metric
 from pysparkplug._types import MetricValue, Self
 
@@ -31,11 +32,14 @@ class Metric:
             tells consuming clients such as MQTT Engine to not store this as a tag
         is_null:
             if this is null - explicitly say so rather than using -1, false, etc
+        metadata:
+            optional metadata for this metric
     """
 
     timestamp: Optional[int]
     name: Optional[str]
     datatype: DataType
+    metadata: Optional[Metadata] = None
     value: Optional[MetricValue] = None
     alias: Optional[int] = None
     is_historical: bool = False
@@ -56,6 +60,8 @@ class Metric:
             metric.name = self.name
         if include_dtype:
             metric.datatype = self.datatype
+        if self.metadata is not None:
+            metric.metadata.CopyFrom(self.metadata.to_pb())
         if self.alias is not None:
             metric.alias = self.alias
         if self.is_historical:
@@ -66,6 +72,7 @@ class Metric:
             metric.is_null = True
         else:
             setattr(metric, self.datatype.field, self.datatype.encode(self.value))
+
         return metric
 
     @classmethod
@@ -93,4 +100,8 @@ class Metric:
             is_historical=metric.is_historical,
             is_transient=metric.is_transient,
             is_null=metric.is_null,
+            # Check and extract metadata if present
+            metadata=Metadata.from_pb(metric.metadata)
+            if metric.HasField("metadata")
+            else None,
         )

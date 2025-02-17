@@ -15,6 +15,7 @@ from pysparkplug._enums import (
 )
 from pysparkplug._error import MQTTError
 from pysparkplug._message import Message
+from pysparkplug._metadata import Metadata
 from pysparkplug._metric import Metric
 from pysparkplug._payload import (
     DBirth,
@@ -49,6 +50,7 @@ __all__ = [
     "MQTTProtocol",
     "Message",
     "MessageType",
+    "Metadata",
     "Metric",
     "MetricValue",
     "NBirth",

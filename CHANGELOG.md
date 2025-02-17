@@ -3,6 +3,11 @@
 All notable changes for `pysparkplug` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Changelog](http://keepachangelog.com/).
 
+## 0.6.0 (2025-02-16)
+
+### Added
+- Support for `MetaData` attribute of `Metric`'s, enabling multi-part uploads of bytes arrays or file types.
+
 ## 0.5.0 (2025-01-09)
 
 ### Added
