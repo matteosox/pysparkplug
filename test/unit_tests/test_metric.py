@@ -3,7 +3,7 @@
 import unittest
 from datetime import datetime, timezone
 
-from pysparkplug import DataType, Metric, Metadata
+from pysparkplug import DataType, Metadata, Metric
 
 
 class TestMetric(unittest.TestCase):
@@ -106,7 +106,13 @@ class TestMetric(unittest.TestCase):
         """Test metric creation with metadata and conversion"""
         metadata = Metadata(
             is_multipart=True,
-            sequence_number=123,
+            content_type="json",
+            size=256,
+            seq=123,
+            file_name="hello.json",
+            file_type="json",
+            md5="123456789abcdef",
+            description="this is a description",
         )
         metric = Metric(
             timestamp=1234567890,
@@ -123,7 +129,13 @@ class TestMetric(unittest.TestCase):
         self.assertEqual(pb.int_value, 42)
         self.assertFalse(pb.is_null)
         self.assertTrue(pb.metadata.is_multi_part)
+        self.assertEqual(pb.metadata.content_type, "json")
+        self.assertEqual(pb.metadata.size, 256)
         self.assertEqual(pb.metadata.seq, 123)
+        self.assertEqual(pb.metadata.file_name, "hello.json")
+        self.assertEqual(pb.metadata.file_type, "json")
+        self.assertEqual(pb.metadata.md5, "123456789abcdef")
+        self.assertEqual(pb.metadata.description, "this is a description")
 
         # Convert back
         metric2 = Metric.from_pb(pb)
@@ -132,8 +144,15 @@ class TestMetric(unittest.TestCase):
         self.assertEqual(metric2.value, 42)
         self.assertFalse(metric2.is_null)
         self.assertIsNotNone(metric2.metadata)
+        assert metric2.metadata is not None
         self.assertTrue(metric2.metadata.is_multipart)
-        self.assertEqual(metric2.metadata.sequence_number, 123)
+        self.assertEqual(metric2.metadata.content_type, "json")
+        self.assertEqual(metric2.metadata.size, 256)
+        self.assertEqual(metric2.metadata.seq, 123)
+        self.assertEqual(metric2.metadata.file_name, "hello.json")
+        self.assertEqual(metric2.metadata.file_type, "json")
+        self.assertEqual(metric2.metadata.md5, "123456789abcdef")
+        self.assertEqual(metric2.metadata.description, "this is a description")
 
     def test_metric_with_null_metadata(self):
         """Test metric creation with null metadata and conversion"""
@@ -165,7 +184,6 @@ class TestMetric(unittest.TestCase):
         """Test metric creation with partial metadata (only is_multipart)"""
         metadata = Metadata(
             is_multipart=True,
-            sequence_number=None,
         )
         metric = Metric(
             timestamp=1234567890,
@@ -182,7 +200,13 @@ class TestMetric(unittest.TestCase):
         self.assertEqual(pb.int_value, 42)
         self.assertFalse(pb.is_null)
         self.assertTrue(pb.metadata.is_multi_part)
-        self.assertFalse(pb.metadata.HasField("seq"))  # Ensure sequence_number is not set
+        self.assertFalse(pb.metadata.HasField("content_type"))
+        self.assertFalse(pb.metadata.HasField("size"))
+        self.assertFalse(pb.metadata.HasField("seq"))
+        self.assertFalse(pb.metadata.HasField("file_name"))
+        self.assertFalse(pb.metadata.HasField("file_type"))
+        self.assertFalse(pb.metadata.HasField("md5"))
+        self.assertFalse(pb.metadata.HasField("description"))
 
         # Convert back
         metric2 = Metric.from_pb(pb)
@@ -191,5 +215,12 @@ class TestMetric(unittest.TestCase):
         self.assertEqual(metric2.value, 42)
         self.assertFalse(metric2.is_null)
         self.assertIsNotNone(metric2.metadata)
+        assert metric2.metadata is not None
         self.assertTrue(metric2.metadata.is_multipart)
-        self.assertIsNone(metric2.metadata.sequence_number)  # Ensure sequence_number is None
+        self.assertIsNone(metric2.metadata.content_type)
+        self.assertIsNone(metric2.metadata.size)
+        self.assertIsNone(metric2.metadata.seq)
+        self.assertIsNone(metric2.metadata.file_name)
+        self.assertIsNone(metric2.metadata.file_type)
+        self.assertIsNone(metric2.metadata.md5)
+        self.assertIsNone(metric2.metadata.description)

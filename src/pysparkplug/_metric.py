@@ -4,9 +4,10 @@ import dataclasses
 from typing import Optional
 
 from pysparkplug._datatype import DataType
+from pysparkplug._metadata import Metadata
 from pysparkplug._protobuf import Metric as PB_Metric
 from pysparkplug._types import MetricValue, Self
-from pysparkplug._metadata import Metadata
+
 __all__ = ["Metric"]
 
 
@@ -38,7 +39,7 @@ class Metric:
     timestamp: Optional[int]
     name: Optional[str]
     datatype: DataType
-    metadata: Optional[Metadata] = None  
+    metadata: Optional[Metadata] = None
     value: Optional[MetricValue] = None
     alias: Optional[int] = None
     is_historical: bool = False
@@ -59,6 +60,8 @@ class Metric:
             metric.name = self.name
         if include_dtype:
             metric.datatype = self.datatype
+        if self.metadata is not None:
+            metric.metadata.CopyFrom(self.metadata.to_pb())
         if self.alias is not None:
             metric.alias = self.alias
         if self.is_historical:
@@ -69,9 +72,6 @@ class Metric:
             metric.is_null = True
         else:
             setattr(metric, self.datatype.field, self.datatype.encode(self.value))
-
-        if self.metadata is not None:
-            metric.metadata.CopyFrom(self.metadata.to_pb())
 
         return metric
 
@@ -101,5 +101,7 @@ class Metric:
             is_transient=metric.is_transient,
             is_null=metric.is_null,
             # Check and extract metadata if present
-            metadata=Metadata.from_pb(metric.metadata) if metric.HasField("metadata") else None,
+            metadata=Metadata.from_pb(metric.metadata)
+            if metric.HasField("metadata")
+            else None,
         )
