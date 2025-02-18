@@ -168,7 +168,7 @@ class Client:
     def _on_connect(self, rc: int) -> None:
         check_connack_code(rc)
         self._births.clear()
-        for topic, qos in self._subscriptions.items():
+        for topic, qos in list(self._subscriptions.items()):
             self._subscribe(topic=topic, qos=qos)
 
     def disconnect(self) -> None:
