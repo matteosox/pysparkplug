@@ -3,6 +3,11 @@
 All notable changes for `pysparkplug` will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Changelog](http://keepachangelog.com/).
 
+## 0.6.1 (2025-05-10)
+
+### Fixed
+- Resolved `Client`'s `_on_connect` method, which iterated through its `_subscriptions` dict, which could be edited by another thread calling its `un/subscribe` method. See [Issue #20](https://github.com/matteosox/pysparkplug/issues/20).
+
 ## 0.6.0 (2025-02-16)
 
 ### Added
